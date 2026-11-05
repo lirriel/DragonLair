@@ -1,0 +1,66 @@
+name: EndlessBookmark
+options:
+  bundleIdPrefix: com.lirriel
+  deploymentTarget:
+    iOS: "18.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: D2K9WSX9F8
+targets:
+  EndlessBookmark:
+    type: application
+    platform: iOS
+    sources: [EndlessBookmark, Shared]
+    dependencies:
+      - target: ShareExtension
+    info:
+      path: EndlessBookmark/Info.plist
+      properties:
+        # Continued processing tasks get a per-run suffix, see BackgroundImport.
+        BGTaskSchedulerPermittedIdentifiers: [com.lirriel.endlessbookmark.import.*]
+        # With "limited" photo access iOS otherwise asks to select more photos on every launch.
+        # The Screenshots folder screen offers that instead.
+        PHPhotoLibraryPreventAutomaticLimitedAccessAlert: true
+    entitlements:
+      path: EndlessBookmark/EndlessBookmark.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.lirriel.endlessbookmark]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lirriel.endlessbookmark
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "Dragon Lair"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Dragon Lair reads your Screenshots album to turn screenshots into bookmarks."
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+
+  ShareExtension:
+    type: app-extension
+    platform: iOS
+    sources: [ShareExtension, Shared]
+    entitlements:
+      path: ShareExtension/ShareExtension.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.lirriel.endlessbookmark]
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: "Dragon Lair"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsImageWithMaxCount: 50
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lirriel.endlessbookmark.share
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic

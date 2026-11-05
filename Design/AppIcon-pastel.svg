@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- hand-drawn wobble for sketch lines -->
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="sketch2" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="17" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- colored-pencil grain: light speckles inside the shape -->
+    <filter id="pencil" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7 0.35" numOctaves="2" seed="9" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.9  0 0 0 -1.4 0.95" result="speck"/>
+      <feComposite in="speck" in2="SourceGraphic" operator="atop"/>
+    </filter>
+    <filter id="paper" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="2"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.6  0 0 0 0 0.55  0 0 0 0 0.35  0 0 0 -1.2 0.85"/>
+    </filter>
+    <radialGradient id="glow" cx="50%" cy="55%" r="50%">
+      <stop offset="0" stop-color="#FFF6C8"/>
+      <stop offset="1" stop-color="#FBF1D6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBE3A0"/>
+      <stop offset="1" stop-color="#EBC274"/>
+    </linearGradient>
+
+    <path id="body" d="M400 722 C300 722 218 662 218 580 C218 420 380 330 520 330 C700 330 830 430 830 565 C830 705 742 805 600 842"/>
+    <mask id="bodyMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <use href="#body" fill="none" stroke="#fff" stroke-width="118" stroke-linecap="round"/>
+    </mask>
+  </defs>
+
+  <!-- paper -->
+  <rect width="1024" height="1024" fill="#F9F0D4"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+
+  <!-- tail: tapers across the front, ends in a fluffy tuft -->
+  <g filter="url(#sketch)">
+    <path d="M610 784 C520 796 410 836 292 866 C405 888 510 902 620 900 Z" fill="#A9D78E" stroke="#7FA86A" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+  <path d="M610 784 C520 796 410 836 292 866 C405 888 510 902 620 900 Z" fill="#A9D78E" opacity="0.6" filter="url(#pencil)"/>
+  <path d="M600 886 C520 884 420 876 330 874" fill="none" stroke="#F4F2D6" stroke-width="10" stroke-linecap="round" filter="url(#sketch)"/>
+  <g fill="#F6F5DE" stroke="#9DB884" stroke-width="5" stroke-linejoin="round" filter="url(#sketch2)">
+    <path d="M300 872 C265 830 215 822 185 845 C215 845 235 852 250 865 C210 860 175 880 168 915 C200 893 235 888 268 892 C245 905 232 928 238 955 C258 925 282 905 310 892 Z"/>
+  </g>
+  <g fill="none" stroke="#C8D9AE" stroke-width="3" stroke-linecap="round">
+    <path d="M285 872 C255 850 225 845 205 850"/>
+    <path d="M280 885 C240 882 210 892 190 905"/>
+  </g>
+
+  <!-- body ring: sketch outline, fill, belly, dorsal marks -->
+  <use href="#body" fill="none" stroke="#7FA86A" stroke-width="128" stroke-linecap="round" filter="url(#sketch)"/>
+  <g filter="url(#pencil)">
+    <use href="#body" fill="none" stroke="#A9D78E" stroke-width="116" stroke-linecap="round"/>
+  </g>
+  <g mask="url(#bodyMask)">
+    <use href="#body" fill="none" stroke="#F4F2D6" stroke-width="44" opacity="0.9" transform="translate(524 580) scale(0.87) translate(-524 -580)"/>
+  </g>
+  <use href="#body" fill="none" stroke="#D9E9B0" stroke-width="5" stroke-dasharray="2 34" stroke-linecap="round" transform="translate(524 580) scale(0.86) translate(-524 -580)" opacity="0.9"/>
+  <!-- dorsal tufts along the outer edge -->
+  <g fill="#C6E3A6" stroke="#7FA86A" stroke-width="4" stroke-linejoin="round" filter="url(#sketch)">
+    <path d="M250 455 C238 430 236 412 246 400 C258 418 270 432 286 440 Z"/>
+    <path d="M326 375 C320 350 324 330 336 320 C344 340 354 354 366 362 Z"/>
+    <path d="M418 334 C420 308 430 290 444 284 C446 304 452 320 462 330 Z"/>
+    <path d="M520 322 C528 298 542 284 558 282 C554 300 556 316 562 328 Z"/>
+    <path d="M622 334 C638 312 656 302 672 304 C662 320 660 334 662 348 Z"/>
+    <path d="M714 370 C736 354 756 350 770 356 C756 368 750 382 748 396 Z"/>
+    <path d="M790 430 C814 422 834 424 846 434 C828 442 818 454 812 468 Z"/>
+    <path d="M832 512 C856 512 874 520 882 532 C862 534 848 542 838 554 Z"/>
+  </g>
+  <!-- hoard inside the curl -->
+  <g filter="url(#sketch)">
+    <path d="M318 700 C318 650 340 610 372 590 C380 545 410 520 446 512 C462 470 500 446 540 452 C584 448 620 470 640 504 C690 512 722 556 724 600 C740 630 746 665 740 700 Z" fill="url(#gold)" stroke="#C49A55" stroke-width="5"/>
+  </g>
+  <!-- bookmark ribbon -->
+  <path d="M600 470 L646 482 L628 590 L606 568 L582 580 Z" fill="#E98A86" stroke="#C0605C" stroke-width="5" stroke-linejoin="round" filter="url(#sketch)"/>
+  <g fill="#FCE9B0" stroke="#C49A55" stroke-width="5" filter="url(#sketch2)">
+    <ellipse cx="470" cy="520" rx="34" ry="13"/>
+    <ellipse cx="540" cy="480" rx="30" ry="11"/>
+    <ellipse cx="560" cy="560" rx="36" ry="13" transform="rotate(-10 560 560)"/>
+    <ellipse cx="440" cy="600" rx="36" ry="13" transform="rotate(8 440 600)"/>
+    <ellipse cx="650" cy="630" rx="36" ry="13"/>
+    <ellipse cx="560" cy="650" rx="34" ry="13"/>
+    <ellipse cx="380" cy="665" rx="32" ry="12"/>
+    <ellipse cx="690" cy="560" rx="28" ry="11" transform="rotate(15 690 560)"/>
+  </g>
+  <g stroke-width="4" stroke-linejoin="round" filter="url(#sketch)">
+    <path d="M500 590 L520 572 L540 590 L520 616 Z" fill="#9FD6E0" stroke="#6AA2AE"/>
+    <path d="M610 530 L626 516 L642 530 L626 552 Z" fill="#D3B3E8" stroke="#9C7CB5"/>
+  </g>
+  <g fill="#FFFFFF">
+    <path d="M520 400 Q524 418 540 422 Q524 426 520 444 Q516 426 500 422 Q516 418 520 400Z"/>
+    <path d="M700 470 Q703 482 714 485 Q703 488 700 500 Q697 488 686 485 Q697 482 700 470Z"/>
+  </g>
+
+  <!-- little paw on a coin -->
+  <g filter="url(#sketch)">
+    <ellipse cx="610" cy="738" rx="44" ry="17" fill="#FCE9B0" stroke="#C49A55" stroke-width="5"/>
+    <path d="M690 700 C668 708 642 718 616 726 C600 732 602 748 620 746 C648 742 674 732 700 722 Z" fill="#A9D78E" stroke="#7FA86A" stroke-width="5" stroke-linejoin="round"/>
+  </g>
+  <g stroke="#7FA86A" stroke-width="4" stroke-linecap="round">
+    <path d="M608 730 L598 724"/><path d="M606 742 L594 742"/>
+  </g>
+
+  <!-- head resting on the hoard -->
+  <!-- antlers -->
+  <g fill="none" stroke-linecap="round" filter="url(#sketch)">
+    <g stroke="#9C7E58" stroke-width="20">
+      <path d="M392 640 C372 590 350 552 316 528"/>
+      <path d="M366 580 C380 552 392 534 410 520"/>
+      <path d="M346 556 C330 556 312 562 296 574"/>
+    </g>
+    <g stroke="#E3CDA3" stroke-width="12">
+      <path d="M392 640 C372 590 350 552 316 528"/>
+      <path d="M366 580 C380 552 392 534 410 520"/>
+      <path d="M346 556 C330 556 312 562 296 574"/>
+    </g>
+  </g>
+  <!-- long ear -->
+  <g filter="url(#sketch)">
+    <path d="M378 660 C330 622 282 606 228 612 C268 646 320 680 370 694 Z" fill="#A9D78E" stroke="#7FA86A" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M362 668 C326 644 292 632 258 628 C290 652 324 672 356 680 Z" fill="#F2C6BD"/>
+  </g>
+  <!-- mane fluff behind head -->
+  <g fill="#F6F5DE" stroke="#9DB884" stroke-width="4" stroke-linejoin="round" filter="url(#sketch2)">
+    <path d="M330 690 C300 700 280 720 276 748 C300 730 318 728 336 730 C312 745 302 768 306 790 C328 765 350 752 372 748 Z"/>
+  </g>
+  <g filter="url(#sketch)">
+    <path d="M340 660 C350 612 420 596 470 620 C512 640 548 680 552 716 C554 742 522 756 480 754 C430 754 370 744 350 718 C335 702 335 682 340 660 Z" fill="#A9D78E" stroke="#7FA86A" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+  <g filter="url(#pencil)">
+    <path d="M340 660 C350 612 420 596 470 620 C512 640 548 680 552 716 C554 742 522 756 480 754 C430 754 370 744 350 718 C335 702 335 682 340 660 Z" fill="#A9D78E" opacity="0.5"/>
+  </g>
+  <!-- cream chin -->
+  <path d="M360 720 C400 744 470 750 520 746 C540 744 552 734 552 718 C520 735 430 735 360 720 Z" fill="#F4F2D6" filter="url(#sketch)"/>
+  <!-- closed sleepy eye, blush, nostril -->
+  <path d="M418 668 Q442 686 468 668" fill="none" stroke="#4E6B40" stroke-width="6" stroke-linecap="round"/>
+  <g stroke="#4E6B40" stroke-width="4" stroke-linecap="round">
+    <path d="M424 676 L418 686"/><path d="M436 681 L433 692"/>
+  </g>
+  <ellipse cx="470" cy="706" rx="26" ry="12" fill="#F3A3A0" opacity="0.6"/>
+  <ellipse cx="536" cy="702" rx="5" ry="4" fill="#5E8A4A"/>
+  <path d="M500 732 Q516 740 534 734" fill="none" stroke="#5E8A4A" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- zzz -->
+  <g font-family="Chalkboard SE, Marker Felt, sans-serif" font-weight="bold" fill="#9CC384" opacity="0.9">
+    <text x="600" y="250" font-size="64" transform="rotate(-12 600 250)">z</text>
+    <text x="680" y="190" font-size="84" transform="rotate(-12 680 190)">z</text>
+    <text x="780" y="135" font-size="108" transform="rotate(-12 780 135)">Z</text>
+  </g>
+  <g fill="#F3D27A" opacity="0.8">
+    <circle cx="150" cy="220" r="8"/><circle cx="900" cy="320" r="7"/><circle cx="110" cy="420" r="6"/><circle cx="920" cy="760" r="8"/>
+  </g>
+
+  <!-- paper grain -->
+  <rect width="1024" height="1024" filter="url(#paper)" opacity="0.12"/>
+</svg>
