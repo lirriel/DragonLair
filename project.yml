@@ -1,6 +1,5 @@
 name: DragonLair
 options:
-  bundleIdPrefix: com.lirriel
   deploymentTarget:
     iOS: "18.0"
 settings:
@@ -8,10 +7,11 @@ settings:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: D2K9WSX9F8
-# The app was first called EndlessBookmark. Its bundle IDs, App Group, background task ID and
-# Keychain service keep that name on purpose: changing them would make iOS treat it as a new
-# app, with an empty library and no saved keys.
+# The team and APP_ID come from Config/Base.xcconfig, overridden by an uncommitted
+# Config/Local.xcconfig. Every other identifier is derived from APP_ID.
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
 targets:
   DragonLair:
     type: application
@@ -25,19 +25,21 @@ targets:
       path: DragonLair/Info.plist
       properties:
         # Continued processing tasks get a per-run suffix, see BackgroundImport.
-        BGTaskSchedulerPermittedIdentifiers: [com.lirriel.endlessbookmark.import.*]
+        BGTaskSchedulerPermittedIdentifiers: [$(APP_ID).import.*]
         # With "limited" photo access iOS otherwise asks to select more photos on every launch.
         # The Screenshots folder screen offers that instead.
         PHPhotoLibraryPreventAutomaticLimitedAccessAlert: true
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # Read by AppID.base to build the App Group, background task and Keychain names.
+        AppIdentifier: $(APP_ID)
     entitlements:
       path: DragonLair/DragonLair.entitlements
       properties:
-        com.apple.security.application-groups: [group.com.lirriel.endlessbookmark]
+        com.apple.security.application-groups: [group.$(APP_ID)]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.lirriel.endlessbookmark
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID)
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: "Dragon Lair"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -56,7 +58,7 @@ targets:
       - target: DragonLair
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.lirriel.endlessbookmark.tests
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID).tests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
@@ -68,7 +70,7 @@ targets:
     entitlements:
       path: ShareExtension/ShareExtension.entitlements
       properties:
-        com.apple.security.application-groups: [group.com.lirriel.endlessbookmark]
+        com.apple.security.application-groups: [group.$(APP_ID)]
     info:
       path: ShareExtension/Info.plist
       properties:
@@ -76,6 +78,7 @@ targets:
         # Must match the app's version, or App Store uploads are rejected.
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        AppIdentifier: $(APP_ID)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
@@ -84,6 +87,6 @@ targets:
               NSExtensionActivationSupportsImageWithMaxCount: 50
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.lirriel.endlessbookmark.share
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID).share
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic

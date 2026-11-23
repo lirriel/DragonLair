@@ -17,3 +17,6 @@ xcuserdata/
 *.p12
 *.mobileprovision
 .env
+
+# Personal signing settings, see Config/Local.example.xcconfig
+Config/Local.xcconfig

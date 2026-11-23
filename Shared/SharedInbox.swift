@@ -3,8 +3,8 @@ import Foundation
 /// A folder in the App Group container where the share extension drops screenshots.
 /// The main app picks them up and runs them through the import queue.
 enum SharedInbox {
-    // Keeps the app's first name: the library and the share inbox live in this group's folder.
-    static let appGroup = "group.com.lirriel.endlessbookmark"
+    // The library and the share inbox live in this group's folder.
+    static let appGroup = "group.\(AppID.base)"
 
     static var folder: URL? {
         guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) else {

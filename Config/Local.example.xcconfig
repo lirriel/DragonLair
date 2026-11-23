@@ -1,0 +1,8 @@
+// Copy this file to Local.xcconfig (it's ignored by git) and fill it in.
+
+// Find it at developer.apple.com/account under Membership details.
+DEVELOPMENT_TEAM = YOURTEAMID
+
+// Must be unique to you. Everything else (the share extension, App Group, background task
+// and Keychain service) is derived from it.
+APP_ID = com.example.dragonlair

@@ -7,7 +7,7 @@ import UIKit
 /// until it's done. Older versions only get the short regular background time.
 @MainActor
 final class BackgroundImport {
-    static let identifierPrefix = "com.lirriel.endlessbookmark.import"
+    static let identifierPrefix = "\(AppID.base).import"
 
     /// Set when iOS (or the user, from the progress indicator) stops the task.
     private(set) var isCancelled = false

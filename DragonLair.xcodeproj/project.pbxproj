@@ -13,6 +13,7 @@
 		2D6E7E1BEB0C1EA0F6D47399 /* ImportListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */; };
 		2ED526BB648411A79C769BB3 /* ScreenshotFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FA47656439F1D1CDFFD100 /* ScreenshotFolderView.swift */; };
 		3889AE7B363807D40A77DFEE /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1907C65A00D64654D7A73A3E /* ArchiveView.swift */; };
+		39380895A9AE474767032DCF /* AppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998A00423C76DC24F773C30A /* AppID.swift */; };
 		47B1263DAC4F1045AA2FCDEB /* LibrarySchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72450C043C19D158057CA5F /* LibrarySchema.swift */; };
 		50E843F5C305CA17761475F0 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7411D6EC61F23CEB7688F9 /* Bookmark.swift */; };
 		6BBD7E9381E13504BD03A2A5 /* ReviewScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */; };
@@ -25,6 +26,7 @@
 		86A8899EB184F19AC8E5E9B3 /* OriginalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC6293FB697399C47D289DC8 /* OriginalsView.swift */; };
 		8BFCE4EC854742AE1AFB4EA8 /* BackgroundImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E0D37D479B94159A6DBB4D /* BackgroundImport.swift */; };
 		8C430086205138F686B2FA47 /* Backup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC53474EF9004E24B17D0B9 /* Backup.swift */; };
+		8D56D357072B068004FDE90D /* AppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998A00423C76DC24F773C30A /* AppID.swift */; };
 		9434FDE2A86572F238C69C92 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE04B4135B2B8C8B42B9BA2B /* ShareViewController.swift */; };
 		A498CE953B2C44E86C5BB308 /* BookmarkDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3738793A1E9FAF79EEE88E85 /* BookmarkDetailView.swift */; };
 		AEB6036DAE83FEB695C9511C /* SharedInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07551404964DD063892171B8 /* SharedInbox.swift */; };
@@ -75,6 +77,7 @@
 		07EC5239687BE33D0FD1888D /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
 		1907C65A00D64654D7A73A3E /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewScreenshotsView.swift; sourceTree = "<group>"; };
+		1E32381B801853BB4CA25EAA /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		23282DB67326D0A42E435E7A /* DragonLairApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragonLairApp.swift; sourceTree = "<group>"; };
 		2C669CCD163DCCA6304739DD /* DragonLair.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DragonLair.entitlements; sourceTree = "<group>"; };
 		360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -89,6 +92,7 @@
 		7316FE592833D1ACD4A44DA0 /* CoverArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArt.swift; sourceTree = "<group>"; };
 		78181FA4A4A2F590EBD838A5 /* DragonLairTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DragonLairTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A0F0BA6A348140131228F5A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		998A00423C76DC24F773C30A /* AppID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppID.swift; sourceTree = "<group>"; };
 		A72450C043C19D158057CA5F /* LibrarySchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySchema.swift; sourceTree = "<group>"; };
 		AB086FF25D55A792F7DFD2C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ACFBBE80B953D6CC538B19B2 /* AIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIClient.swift; sourceTree = "<group>"; };
@@ -130,6 +134,7 @@
 		3FE03B69E85CF2350748097F /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				998A00423C76DC24F773C30A /* AppID.swift */,
 				07551404964DD063892171B8 /* SharedInbox.swift */,
 			);
 			path = Shared;
@@ -144,9 +149,18 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		70776F87E04325D3618B3762 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				1E32381B801853BB4CA25EAA /* Base.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		A4EC443D054DCD577D0D2C78 = {
 			isa = PBXGroup;
 			children = (
+				70776F87E04325D3618B3762 /* Config */,
 				F851656EA0A28822EF307D1C /* DragonLair */,
 				3F454214B24F085D3BAB3E36 /* DragonLairTests */,
 				3FE03B69E85CF2350748097F /* Shared */,
@@ -283,15 +297,15 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					0A7F80DFC07491C3A67BCB26 = {
-						DevelopmentTeam = D2K9WSX9F8;
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					3EFDB6F81FBF8E53AC35E321 = {
-						DevelopmentTeam = D2K9WSX9F8;
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					5C1FCC2456FF0801EA6D55C8 = {
-						DevelopmentTeam = D2K9WSX9F8;
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -342,6 +356,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D56D357072B068004FDE90D /* AppID.swift in Sources */,
 				9434FDE2A86572F238C69C92 /* ShareViewController.swift in Sources */,
 				F6B325EACBA0DE0C82B7A844 /* SharedInbox.swift in Sources */,
 			);
@@ -360,6 +375,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84C4891707ECEA36A042CA70 /* AIClient.swift in Sources */,
+				39380895A9AE474767032DCF /* AppID.swift in Sources */,
 				3889AE7B363807D40A77DFEE /* ArchiveView.swift in Sources */,
 				8BFCE4EC854742AE1AFB4EA8 /* BackgroundImport.swift in Sources */,
 				8C430086205138F686B2FA47 /* Backup.swift in Sources */,
@@ -419,7 +435,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_ID)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -436,7 +452,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.share;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_ID).share";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -453,7 +469,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.share;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_ID).share";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -477,7 +493,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_ID)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -485,6 +501,7 @@
 		};
 		75C514F5B33A490F4F283135 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E32381B801853BB4CA25EAA /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -519,7 +536,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = D2K9WSX9F8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -551,6 +567,7 @@
 		};
 		9FCA793DE3EC8C836C855921 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E32381B801853BB4CA25EAA /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -585,7 +602,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = D2K9WSX9F8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -619,7 +635,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_ID).tests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DragonLair.app/DragonLair";
@@ -637,7 +653,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_ID).tests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DragonLair.app/DragonLair";

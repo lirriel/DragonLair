@@ -1,0 +1,13 @@
+// Shared build settings for every target. Signing details live in Local.xcconfig, which isn't
+// committed, so a fork can build under its own Apple developer account without editing this file.
+// Copy Local.example.xcconfig to Local.xcconfig and fill it in.
+
+// Your Apple Developer Team ID. Left empty here, so CI and unsigned simulator builds work.
+DEVELOPMENT_TEAM =
+
+// The app's bundle ID. The share extension, tests, App Group, background task and Keychain
+// service are all derived from it. It keeps the app's first name, EndlessBookmark, so existing
+// installs keep their library and saved keys.
+APP_ID = com.lirriel.endlessbookmark
+
+#include? "Local.xcconfig"

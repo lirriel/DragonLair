@@ -171,8 +171,14 @@ Anyone can put text into an image, and the AI reads all of it. The worst a scree
 
 **Requirements:** Xcode with the iOS 18 SDK or later. iOS 26 is needed for imports to keep running in the background.
 
-1. Open `DragonLair.xcodeproj`.
-2. Under *Signing & Capabilities*, choose your own team for both the **DragonLair** and **ShareExtension** targets. If they're taken, change the bundle identifiers and the App Group (`group.com.lirriel.endlessbookmark`, also in `Shared/SharedInbox.swift`). These IDs keep the app's first name, *EndlessBookmark*, so existing installs keep their library and keys.
+1. Set up signing. Copy the example config and fill in your Team ID and a bundle ID of your own:
+
+   ```bash
+   cp Config/Local.example.xcconfig Config/Local.xcconfig
+   ```
+
+   `Local.xcconfig` isn't committed. The share extension, tests, App Group, background task and Keychain service are all derived from `APP_ID`, so nothing else needs changing. Without the file, the project still builds for the simulator, just unsigned.
+2. Open `DragonLair.xcodeproj`.
 3. Run on a device or simulator.
 4. In the app, open **Settings** and add an API key for one AI provider. Optionally add TMDB, Hardcover or Google Books keys to find more covers.
 
@@ -216,7 +222,12 @@ DragonLair/
 └── Views/                     SwiftUI screens
 DragonLairTests/               Unit tests (Swift Testing)
 ShareExtension/                Share sheet target → SharedInbox
-Shared/SharedInbox.swift       App Group file handoff used by both targets
+Shared/
+├── SharedInbox.swift          App Group file handoff used by both targets
+└── AppID.swift                Base identifier the App Group and other names are built from
+Config/
+├── Base.xcconfig              Shared settings: APP_ID, team (empty)
+└── Local.example.xcconfig     Template for your uncommitted Local.xcconfig
 Design/                        App icon and its source; earlier concepts in Design/explorations
 docs/                          README images
 project.yml                    XcodeGen spec
