@@ -497,10 +497,9 @@ enum CoverArt {
 
     // MARK: Helpers
 
-    /// Logged to the system log (Console.app, category "covers") and printed for device consoles.
+    /// Logged to the system log: Xcode's console, or Console.app filtered by category "covers".
     private static func note(_ message: String) {
         log.info("\(message, privacy: .public)")
-        print("Covers: \(message)")
     }
 
     /// Apple Books catalogues differ by country; a title in another script is best searched

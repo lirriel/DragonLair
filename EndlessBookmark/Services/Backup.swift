@@ -29,6 +29,14 @@ struct BackupFile: Codable {
         var sourceHash: String
         var sourceAssetID: String
         var image: String?
+        // Added later, so optional: backups made before them still load.
+        var englishTitle: String?
+        var englishCreator: String?
+        var originalTitle: String?
+        var originalCreator: String?
+        var englishChecked: Bool?
+        var englishVerified: Bool?
+        var photoBox: String?
     }
 }
 
@@ -48,8 +56,11 @@ enum BackupError: LocalizedError {
 /// grants access, so this works without the paid-account iCloud entitlement.
 @MainActor
 enum Backup {
-    static let fileName = "Endless Bookmark backup.json"
-    static let imagesFolder = "Endless Bookmark images"
+    static let fileName = "Dragon Lair backup.json"
+    static let imagesFolder = "Dragon Lair images"
+    /// Names from before the app was called Dragon Lair. Backups found under them are renamed.
+    private static let oldFileName = "Endless Bookmark backup.json"
+    private static let oldImagesFolder = "Endless Bookmark images"
 
     // MARK: Folder
 
@@ -79,7 +90,21 @@ enum Backup {
         guard let url = folderURL else { throw BackupError.noFolder }
         guard url.startAccessingSecurityScopedResource() else { throw BackupError.noAccess }
         defer { url.stopAccessingSecurityScopedResource() }
+        migrateOldNames(in: url)
         return try body(url)
+    }
+
+    /// Renames a backup made under the old names, unless one under the new names exists.
+    private static func migrateOldNames(in folder: URL) {
+        for (old, new) in [(oldFileName, fileName), (oldImagesFolder, imagesFolder)] {
+            let from = folder.appendingPathComponent(old), to = folder.appendingPathComponent(new)
+            let fm = FileManager.default
+            guard fm.fileExists(atPath: from.path) || fm.fileExists(atPath: folder.appendingPathComponent(".\(old).icloud").path),
+                  !fm.fileExists(atPath: to.path) else { continue }
+            do { try coordinatedMove(from, to: to) } catch {
+                AppSettings.lastBackupError = "Couldn't rename the old backup “\(old)”: \(error.localizedDescription)"
+            }
+        }
     }
 
     // MARK: Writing
@@ -117,7 +142,10 @@ enum Backup {
                     year: b.year, summary: b.summary, url: b.url, location: b.location, tags: b.tags,
                     notes: b.notes, createdAt: b.createdAt, archivedAt: b.archivedAt,
                     seenAgainCount: b.seenAgainCount, lastSeenAgainAt: b.lastSeenAgainAt,
-                    sourceHash: b.sourceHash, sourceAssetID: b.sourceAssetID, image: name)
+                    sourceHash: b.sourceHash, sourceAssetID: b.sourceAssetID, image: name,
+                    englishTitle: b.englishTitle, englishCreator: b.englishCreator,
+                    originalTitle: b.originalTitle, originalCreator: b.originalCreator,
+                    englishChecked: b.englishChecked, englishVerified: b.englishVerified, photoBox: b.photoBox)
             }
 
             let backup = BackupFile(createdAt: .now, bookmarks: records, scannedKeys: scanned)
@@ -156,10 +184,13 @@ enum Backup {
         }
     }
 
-    /// Adds bookmarks that aren't in the app yet. Ones already here (same category and title)
-    /// are left exactly as they are, so restoring twice never creates duplicates.
+    /// Adds bookmarks that aren't in the app yet. Ones already here are left exactly as they
+    /// are, so restoring twice never creates duplicates. Like imports, a bookmark counts as here
+    /// when its shown or original-language title matches either title of one in the app.
     static func restore(_ backup: BackupFile, context: ModelContext) throws -> (added: Int, kept: Int) {
-        var known = Set(try context.fetch(FetchDescriptor<Bookmark>()).map(\.matchKey))
+        var known = Set(try context.fetch(FetchDescriptor<Bookmark>()).flatMap { b in
+            [b.title, b.originalTitle].filter { !$0.isEmpty }.map { Bookmark.matchKey(category: b.category, title: $0) }
+        })
         let scanned = Set(try context.fetch(FetchDescriptor<ScannedImage>()).map(\.key))
         var added = 0, kept = 0
 
@@ -167,8 +198,10 @@ enum Backup {
             let images = folder.appendingPathComponent(imagesFolder, isDirectory: true)
             for r in backup.bookmarks {
                 let category = BookmarkCategory(rawValue: r.category) ?? .other
-                let key = Bookmark.matchKey(category: category, title: r.title)
-                guard known.insert(key).inserted else { kept += 1; continue }
+                let keys = [r.title, r.originalTitle ?? ""].filter { !$0.isEmpty }
+                    .map { Bookmark.matchKey(category: category, title: $0) }
+                guard known.isDisjoint(with: keys) else { kept += 1; continue }
+                known.formUnion(keys)
 
                 let screenshot = r.image.flatMap { name -> Data? in
                     let url = images.appendingPathComponent(name)
@@ -186,6 +219,13 @@ enum Backup {
                 b.seenAgainCount = r.seenAgainCount
                 b.lastSeenAgainAt = r.lastSeenAgainAt
                 b.sourceAssetID = r.sourceAssetID
+                b.englishTitle = r.englishTitle ?? ""
+                b.englishCreator = r.englishCreator ?? ""
+                b.originalTitle = r.originalTitle ?? ""
+                b.originalCreator = r.originalCreator ?? ""
+                b.englishChecked = r.englishChecked ?? false
+                b.englishVerified = r.englishVerified ?? false
+                b.photoBox = r.photoBox ?? ""
                 context.insert(b)
                 added += 1
             }
@@ -221,6 +261,16 @@ enum Backup {
             do { try data.write(to: url, options: .atomic) } catch { writeError = error }
         }
         if let error = coordinationError ?? writeError { throw error }
+    }
+
+    private static func coordinatedMove(_ from: URL, to: URL) throws {
+        var coordinationError: NSError?
+        var moveError: Error?
+        NSFileCoordinator().coordinate(writingItemAt: from, options: .forMoving,
+                                       writingItemAt: to, options: .forReplacing, error: &coordinationError) { from, to in
+            do { try FileManager.default.moveItem(at: from, to: to) } catch { moveError = error }
+        }
+        if let error = coordinationError ?? moveError { throw error }
     }
 
     private static func coordinatedRead(_ url: URL) throws -> Data {

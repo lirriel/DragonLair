@@ -1,3 +1,4 @@
+import os
 import SwiftData
 import SwiftUI
 
@@ -290,7 +291,7 @@ struct BookmarkDetailView: View {
             rereadError = nil
         } catch {
             uiLog.error("Re-read of “\(bookmark.title, privacy: .public)” failed: \(String(describing: error), privacy: .public)")
-            print("Re-read failed: \(error)")
+            uiLog.error("Re-read failed: \(error, privacy: .public)")
             rereadError = error.localizedDescription
         }
         rereading = false

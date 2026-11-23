@@ -1,4 +1,5 @@
 import BackgroundTasks
+import os
 import UIKit
 
 /// Keeps an import running while the user is in other apps. On iOS 26+ each run is a
@@ -64,10 +65,10 @@ final class BackgroundImport {
         request.strategy = .fail
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("Import: continued task submitted")
+            importLog.info("Continued task submitted")
             return true
         } catch {
-            print("Continued import task not available: \(error)")
+            importLog.notice("Continued import task not available: \(error, privacy: .public)")
             return false
         }
     }

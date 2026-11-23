@@ -5,6 +5,10 @@ import PhotosUI
 import SwiftData
 import SwiftUI
 import UIKit
+import os
+
+/// Import pipeline and AI calls. Filter Console.app by category "import" to follow an import.
+let importLog = Logger(subsystem: "com.lirriel.endlessbookmark", category: "import")
 
 /// Processes picked screenshots one at a time and turns them into bookmarks.
 @MainActor
@@ -221,14 +225,16 @@ final class ImportQueue {
         background.begin(total: jobs.filter { $0.state == .waiting }.count)
         defer { background.end() }
         // Stopping (by iOS or from the progress indicator) leaves the rest waiting for next time.
-        while !background.isCancelled, let index = jobs.firstIndex(where: { $0.state == .waiting }) {
-            jobs[index].state = .working
-            let state = await process(index: index, context: context)
-            jobs[index].state = state
+        // Jobs are found again by ID after every await: "Clear finished" can remove rows while
+        // the AI is reading, which moves every row after them up.
+        while !background.isCancelled, let next = jobs.first(where: { $0.state == .waiting }) {
+            updateJob(next.id) { $0.state = .working }
+            let state = await process(next, context: context)
+            updateJob(next.id) { $0.state = state }
             background.progress(remaining: jobs.filter { $0.state == .waiting }.count)
             // Failed images aren't marked as handled, so they can be retried later.
-            guard !jobs[index].isFailed else { continue }
-            switch jobs[index].source {
+            if case .failed = state { continue }
+            switch next.source {
             case .inbox(let url): SharedInbox.remove(url)
             case .asset(let id): markScanned("asset:\(id)", context: context)
             case .picker: break
@@ -325,7 +331,7 @@ final class ImportQueue {
             try? context.save()
         } catch {
             // No key or the provider is busy: try again next time.
-            print("Translating titles failed: \(error)")
+            importLog.error("Translating titles failed: \(error, privacy: .public)")
         }
     }
 
@@ -457,15 +463,25 @@ final class ImportQueue {
         }
     }
 
-    private func process(index: Int, context: ModelContext) async -> Job.State {
+    /// Changes the job with this ID, if it's still in the list.
+    private func updateJob(_ id: Job.ID, _ change: (inout Job) -> Void) {
+        if let index = jobs.firstIndex(where: { $0.id == id }) { change(&jobs[index]) }
+    }
+
+    /// `job` is a copy taken before the work starts; changes go back through `updateJob`.
+    private func process(_ job: Job, context: ModelContext) async -> Job.State {
         do {
-            print("Import: loading image")
-            guard let data = try await loadData(jobs[index]),
+            importLog.debug("Loading image")
+            guard let data = try await loadData(job),
                   let image = UIImage(data: data) else {
                 return .failed("Couldn't load the image")
             }
-            jobs[index].thumbnail = image.resized(maxSide: 200)
-            jobs[index].previewData = image.resized(maxSide: 1200).jpegData(compressionQuality: 0.7)
+            let preview = image.resized(maxSide: 1200).jpegData(compressionQuality: 0.7)
+            let thumbnail = image.resized(maxSide: 200)
+            updateJob(job.id) {
+                $0.thumbnail = thumbnail
+                $0.previewData = preview
+            }
 
             let hash = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
             let existing = FetchDescriptor<Bookmark>(predicate: #Predicate { $0.sourceHash == hash })
@@ -473,8 +489,8 @@ final class ImportQueue {
             // Screenshots read before are skipped by watching and period imports, so they aren't
             // paid for twice. One the user picks or shares again is read again unless a bookmark
             // from it still exists (e.g. they deleted a wrong import and want another try).
-            let isAutomatic = if case .asset = jobs[index].source { true } else { false }
-            if hasBookmark || (isAutomatic && !jobs[index].forceRead && isScanned("hash:\(hash)", context: context)) {
+            let isAutomatic = if case .asset = job.source { true } else { false }
+            if hasBookmark || (isAutomatic && !job.forceRead && isScanned("hash:\(hash)", context: context)) {
                 return .skipped
             }
 
@@ -482,7 +498,7 @@ final class ImportQueue {
             guard let upload = image.resized(maxSide: 1568).jpegData(compressionQuality: 0.8) else {
                 return .failed("Couldn't encode the image")
             }
-            print("Import: sending \(upload.count / 1024) KB to \(AppSettings.provider.rawValue)")
+            importLog.info("Sending \(upload.count / 1024) KB to \(AppSettings.provider.rawValue, privacy: .public)")
             let started = Date.now
             // An item the AI recognised but couldn't name is still worth keeping; the user can
             // rename it once they find out what it is.
@@ -496,8 +512,7 @@ final class ImportQueue {
                     + "(\(Date.now.formatted(date: .abbreviated, time: .shortened)))"
                 return named
             }
-            print("Import: got \(items.count) items in \(Int(Date.now.timeIntervalSince(started)))s")
-            let stored = jobs[index].previewData
+            importLog.info("Got \(items.count) items in \(Int(Date.now.timeIntervalSince(started)))s")
 
             // Everything ever saved, archived included, so old items are recognised.
             // Keyed by both the shown and the original-language title, so a screenshot in
@@ -526,8 +541,8 @@ final class ImportQueue {
                     category: category,
                     title: item.title, creator: item.creator, year: item.year,
                     summary: item.summary, url: item.url, location: item.location,
-                    tags: item.tags.map { $0.lowercased() }, sourceHash: hash, screenshot: stored)
-                bookmark.sourceAssetID = jobs[index].assetID ?? ""
+                    tags: item.tags.map { $0.lowercased() }, sourceHash: hash, screenshot: preview)
+                bookmark.sourceAssetID = job.assetID ?? ""
                 bookmark.englishTitle = item.englishTitle
                 bookmark.englishCreator = item.englishCreator
                 bookmark.photoBox = item.photoBox
@@ -541,13 +556,13 @@ final class ImportQueue {
             context.insert(ScannedImage(key: "hash:\(hash)"))
             try context.save()
             if added == 0 && notes.isEmpty {
-                print("Import: nothing found (the AI returned \(items.count) item(s))")
-                jobs[index].imageData = data
+                importLog.info("Nothing found (the AI returned \(items.count) item(s))")
+                updateJob(job.id) { $0.imageData = data }
                 return .nothingFound
             }
             return .done(added: added, notes: notes)
         } catch {
-            print("Import failed: \(error)")
+            importLog.error("Import failed: \(error, privacy: .public)")
             return .failed(error.localizedDescription)
         }
     }

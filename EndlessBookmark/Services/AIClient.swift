@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// One thing recognised on a screenshot. A single screenshot can contain several
 /// (e.g. a "top 10 manhwa" list), so the AI returns an array.
@@ -282,6 +283,9 @@ struct AIClient: Sendable {
     }
 
     private func call(_ ask: Ask) async throws -> String {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-stubAI") { return try await Self.stubAnswer(ask) }
+        #endif
         guard !apiKey.isEmpty else { throw AIError.missingKey }
         return switch provider {
         case .claude: try await callClaude(ask)
@@ -289,6 +293,19 @@ struct AIClient: Sendable {
         case .gemini: try await callGeminiWithFallback(ask)
         }
     }
+
+    #if DEBUG
+    /// Launch with `-stubAI` to try imports without an API key or network: each screenshot
+    /// takes a few seconds and becomes one made-up bookmark.
+    private static func stubAnswer(_ ask: Ask) async throws -> String {
+        guard ask.jpeg != nil else { return #"{"items":[]}"# }
+        try await Task.sleep(for: .seconds(4))
+        let item = ExtractedItem(category: "other", title: "Stub find \(UUID().uuidString.prefix(4))", creator: "",
+                                 year: "", summary: "Made up by -stubAI.", url: "", location: "", tags: ["stub"],
+                                 englishTitle: "", englishCreator: "", photoBox: "")
+        return String(decoding: try JSONEncoder().encode(ExtractionResult(items: [item])), as: UTF8.self)
+    }
+    #endif
 
     private func decode<T: Decodable>(_ type: T.Type, from json: String) throws -> T {
         do {
@@ -378,7 +395,7 @@ struct AIClient: Sendable {
         do {
             return try await callGemini(ask, model: model, timeout: 45, retrying: false)
         } catch let error where Self.isBusy(error) {
-            print("Import: \(model) still busy, trying \(Self.geminiFallbackModel)")
+            importLog.notice("\(model, privacy: .public) still busy, trying \(Self.geminiFallbackModel, privacy: .public)")
             return try await callGemini(ask, model: Self.geminiFallbackModel)
         }
     }
@@ -464,9 +481,9 @@ struct AIClient: Sendable {
                 let (data, response) = try await URLSession.shared.data(for: request)
                 let status = (response as? HTTPURLResponse)?.statusCode ?? 0
                 if isLast || !(status == 429 || status >= 500) { return (data, status) }
-                print("Import: \(provider.rawValue) busy (\(status)), retrying")
+                importLog.notice("\(provider.rawValue, privacy: .public) busy (\(status)), retrying")
             } catch let error as URLError where !isLast && [.timedOut, .networkConnectionLost].contains(error.code) {
-                print("Import: \(provider.rawValue) \(error.code.rawValue), retrying")
+                importLog.notice("\(provider.rawValue, privacy: .public) network error \(error.code.rawValue), retrying")
             }
             try await Task.sleep(for: waits[attempt])
         }
