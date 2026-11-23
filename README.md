@@ -34,6 +34,7 @@
 - [Privacy](#privacy)
 - [Building](#building)
 - [Project layout](#project-layout)
+- [Credits](#credits)
 - [License](#license)
 
 ## The idea
@@ -201,6 +202,17 @@ Design/                        App icon and its source; earlier concepts in Desi
 docs/                          README images
 project.yml                    XcodeGen spec
 ```
+
+## Credits
+
+Dragon Lair finds covers through public catalogues. It isn't affiliated with or endorsed by any of them, and cover art belongs to its publishers and creators.
+
+- **TMDB:** This product uses the TMDB API but is not endorsed or certified by TMDB. ([themoviedb.org](https://www.themoviedb.org))
+- **Open Food Facts** and **Open Beauty Facts:** product data available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
+- **Apple Books** (iTunes Search API), **Open Library**, **AniList**, **TVmaze**, **Wikipedia**, **Hardcover**, **Google Books** and the **Bookcover API** are queried through their public APIs.
+- **Litnet** has no public API. For Cyrillic book titles only, the app loads Litnet's search page and up to three book pages, and reads the cover from each page's preview image. This happens at most once per bookmark.
+
+The same credits are shown in the app under **Settings → Cover sources**.
 
 ## License
 

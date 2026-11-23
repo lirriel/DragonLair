@@ -33,10 +33,15 @@ struct CoverSourcesView: View {
                     .font(.footnote).foregroundStyle(.secondary)
             }
 
-            // Required by TMDB's terms for apps that use its API.
             Section("Credits") {
+                // Required by TMDB's terms for apps that use its API.
                 Text("This product uses the TMDB API but is not endorsed or certified by TMDB.")
                 Link("themoviedb.org", destination: URL(string: "https://www.themoviedb.org")!)
+                // Required by the Open Database License that both databases use.
+                Text("Product data from Open Food Facts and Open Beauty Facts, available under the Open Database License (ODbL).")
+                Link("openfoodfacts.org", destination: URL(string: "https://world.openfoodfacts.org")!)
+                Text("Covers are found through Apple Books, Open Library, AniList, TVmaze, Wikipedia, Hardcover, Google Books, Litnet and the Bookcover API. Cover art belongs to its publishers and creators.")
+                    .font(.footnote).foregroundStyle(.secondary)
             }
         }
         .navigationTitle("Cover sources")
