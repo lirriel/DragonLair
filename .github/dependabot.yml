@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Keeps the actions used in .github/workflows up to date.
+  # The app has no Swift packages, so there is nothing else to watch.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
