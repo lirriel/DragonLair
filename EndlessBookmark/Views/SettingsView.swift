@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var provider = AppSettings.provider
     @State private var apiKey = ""
     @State private var model = ""
+    @State private var keyNotSaved = false
 
     var body: some View {
         NavigationStack {
@@ -14,7 +15,7 @@ struct SettingsView: View {
                         ForEach(AIProviderKind.allCases) { Text($0.title).tag($0) }
                     }
                 } footer: {
-                    Text("Screenshots are sent to the selected provider to be read. Nothing else leaves your phone.")
+                    Text("Screenshots are sent only to the selected provider, to be read. Cover searches send titles, never screenshots.")
                 }
 
                 Section {
@@ -75,6 +76,11 @@ struct SettingsView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) { Button("Save", action: save) }
             }
+            .alert("Couldn't save the API key", isPresented: $keyNotSaved) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("The phone's Keychain refused it. Try again, or restart the phone if it keeps happening.")
+            }
         }
     }
 
@@ -86,8 +92,11 @@ struct SettingsView: View {
 
     private func save() {
         AppSettings.provider = provider
-        AppSettings.setAPIKey(apiKey, for: provider)
         AppSettings.setModel(model, for: provider)
+        guard AppSettings.setAPIKey(apiKey, for: provider) else {
+            keyNotSaved = true
+            return
+        }
         dismiss()
     }
 }

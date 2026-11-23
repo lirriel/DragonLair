@@ -4,6 +4,16 @@ import SwiftUI
 @main
 struct EndlessBookmarkApp: App {
     @State private var importQueue = ImportQueue()
+    private let container: ModelContainer
+
+    init() {
+        do {
+            container = try .library()
+        } catch {
+            // Nothing works without the library; the error says which migration is missing.
+            fatalError("Couldn't open the library: \(error)")
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -13,6 +23,6 @@ struct EndlessBookmarkApp: App {
                 .modifier(SampleData())
                 #endif
         }
-        .modelContainer(for: [Bookmark.self, ScannedImage.self])
+        .modelContainer(container)
     }
 }

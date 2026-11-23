@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import ImageIO
 import Observation
 import PhotosUI
 import SwiftData
@@ -249,15 +250,15 @@ final class ImportQueue {
     /// replaces its details with what's found, for imports that were read wrong. Takes the
     /// item of the same category if the screenshot shows several.
     func reread(_ bookmark: Bookmark, context: ModelContext) async throws {
-        guard let screenshot = bookmark.screenshot, let image = UIImage(data: screenshot),
-              let jpeg = image.resized(maxSide: 1568).jpegData(compressionQuality: 0.8) else {
+        guard let screenshot = bookmark.screenshot,
+              let jpeg = await Task.detached(priority: .userInitiated, operation: { PreparedImage(screenshot)?.upload }).value else {
             throw AIError.badResponse("this bookmark has no screenshot")
         }
         let items = try await AppSettings.client.extract(jpeg: jpeg).filter { !$0.title.isEmpty }
         guard let item = items.first(where: { $0.category == bookmark.categoryRaw }) ?? items.first else {
             throw AIError.badResponse("nothing recognisable was found on the screenshot")
         }
-        uiLog.info("Re-read “\(bookmark.title, privacy: .public)” as “\(item.title, privacy: .public)”")
+        uiLog.info("Re-read “\(bookmark.title, privacy: .private(mask: .hash))” as “\(item.title, privacy: .private(mask: .hash))”")
         bookmark.categoryRaw = (BookmarkCategory(rawValue: item.category) ?? .other).rawValue
         bookmark.title = item.title
         bookmark.creator = item.creator
@@ -473,17 +474,16 @@ final class ImportQueue {
         do {
             importLog.debug("Loading image")
             guard let data = try await loadData(job),
-                  let image = UIImage(data: data) else {
+                  let prepared = await Task.detached(priority: .userInitiated, operation: { PreparedImage(data) }).value else {
                 return .failed("Couldn't load the image")
             }
-            let preview = image.resized(maxSide: 1200).jpegData(compressionQuality: 0.7)
-            let thumbnail = image.resized(maxSide: 200)
+            let preview = prepared.preview
             updateJob(job.id) {
-                $0.thumbnail = thumbnail
+                $0.thumbnail = prepared.thumbnail
                 $0.previewData = preview
             }
 
-            let hash = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+            let hash = prepared.hash
             let existing = FetchDescriptor<Bookmark>(predicate: #Predicate { $0.sourceHash == hash })
             let hasBookmark = (try? context.fetchCount(existing)) ?? 0 > 0
             // Screenshots read before are skipped by watching and period imports, so they aren't
@@ -494,10 +494,7 @@ final class ImportQueue {
                 return .skipped
             }
 
-            // Vision models downscale anything larger anyway; this keeps uploads small.
-            guard let upload = image.resized(maxSide: 1568).jpegData(compressionQuality: 0.8) else {
-                return .failed("Couldn't encode the image")
-            }
+            guard let upload = prepared.upload else { return .failed("Couldn't encode the image") }
             importLog.info("Sending \(upload.count / 1024) KB to \(AppSettings.provider.rawValue, privacy: .public)")
             let started = Date.now
             // An item the AI recognised but couldn't name is still worth keeping; the user can
@@ -565,6 +562,37 @@ final class ImportQueue {
             importLog.error("Import failed: \(error, privacy: .public)")
             return .failed(error.localizedDescription)
         }
+    }
+}
+
+/// Everything an import needs from a screenshot, made away from the main thread. ImageIO
+/// decodes only the sizes needed, never the full image.
+struct PreparedImage: @unchecked Sendable {
+    /// SHA-256 of the original file, used to skip screenshots read before.
+    let hash: String
+    let thumbnail: UIImage?
+    /// Medium-size JPEG for the preview in Imports, and what bookmarks keep.
+    let preview: Data?
+    /// What's sent to the AI. Vision models downscale anything larger anyway.
+    let upload: Data?
+
+    init?(_ data: Data) {
+        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
+              CGImageSourceGetCount(source) > 0 else { return nil }
+        func scaled(_ maxSide: Int) -> UIImage? {
+            let options: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceShouldCacheImmediately: true,
+                kCGImageSourceThumbnailMaxPixelSize: maxSide,
+            ]
+            return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary).map { UIImage(cgImage: $0) }
+        }
+        guard let upload = scaled(1568) else { return nil }
+        hash = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        self.upload = upload.jpegData(compressionQuality: 0.8)
+        preview = scaled(1200)?.jpegData(compressionQuality: 0.7)
+        thumbnail = scaled(200)
     }
 }
 

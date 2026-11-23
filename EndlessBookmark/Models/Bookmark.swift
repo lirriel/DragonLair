@@ -216,6 +216,12 @@ final class Bookmark {
     /// and bracketed extras like "(2023)").
     var matchKey: String { Self.matchKey(category: category, title: title) }
 
+    /// Keys for every non-empty title, e.g. the shown and the original-language one. Two
+    /// bookmarks are the same when any of their keys match.
+    static func matchKeys(category: BookmarkCategory, titles: [String]) -> Set<String> {
+        Set(titles.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.map { matchKey(category: category, title: $0) })
+    }
+
     static func matchKey(category: BookmarkCategory, title: String) -> String {
         let words = title
             .replacingOccurrences(of: #"\s*[\(\[][^\)\]]*[\)\]]"#, with: "", options: .regularExpression)
@@ -242,10 +248,17 @@ final class Bookmark {
         try? context.save()
     }
 
-    var link: URL? {
-        guard !url.isEmpty else { return nil }
-        let raw = url.contains("://") ? url : "https://\(url)"
-        return URL(string: raw)
+    /// The bookmark's website. The URL comes from the AI reading a screenshot, which anyone can
+    /// write text into, so only web links are allowed: never another app's URL scheme.
+    var link: URL? { Self.webURL(url) }
+
+    static func webURL(_ text: String) -> URL? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let raw = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
+        guard let url = URL(string: raw), let scheme = url.scheme?.lowercased(),
+              ["http", "https"].contains(scheme), url.host?.isEmpty == false else { return nil }
+        return url
     }
 
     var mapsLink: URL? {

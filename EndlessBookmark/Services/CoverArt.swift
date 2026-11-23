@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import MapKit
 import OSLog
 import UIKit
@@ -82,7 +83,7 @@ enum CoverArt {
     }
 
     /// "x,y,w,h" fractions from the top left, if sensible.
-    private static func parseBox(_ text: String) -> CGRect? {
+    static func parseBox(_ text: String) -> CGRect? {
         let parts = text.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
         guard parts.count == 4, parts[2] > 0.05, parts[3] > 0.05 else { return nil }
         return CGRect(x: parts[0], y: parts[1], width: parts[2], height: parts[3])
@@ -399,7 +400,7 @@ enum CoverArt {
     private static func placeWebsite(_ q: Query) async -> Hit? {
         let mapsSite = await mapItem(q)?.url
         // Link-in-bio pages only show a profile picture.
-        let ownSite = URL(string: q.url.contains("://") ? q.url : "https://\(q.url)")
+        let ownSite = Bookmark.webURL(q.url)
             .flatMap { ["linktr.ee", "instagram.com", "tiktok.com"].contains(where: $0.absoluteString.contains) ? nil : $0 }
         for site in [mapsSite, q.url.isEmpty ? nil : ownSite].compactMap({ $0 }) {
             // A small share image is nearly always the logo, not a photo of the place.
@@ -446,8 +447,7 @@ enum CoverArt {
 
     /// The page's own share preview (`og:image`), which most sites set to a logo or hero image.
     private static func siteImage(_ q: Query) async -> URL? {
-        let raw = q.url.contains("://") ? q.url : "https://\(q.url)"
-        guard !q.url.isEmpty, let page = URL(string: raw) else { return nil }
+        guard let page = Bookmark.webURL(q.url) else { return nil }
         return await pageMeta(page)?.image
     }
 
@@ -457,7 +457,8 @@ enum CoverArt {
         guard storefront(for: q.title) == "ru",
               var components = URLComponents(string: "https://litnet.com/ru/search") else { return nil }
         components.queryItems = [URLQueryItem(name: "q", value: q.title)]
-        guard let search = components.url, let (data, _) = try? await session.data(from: search) else { return nil }
+        guard let search = components.url,
+              let (data, _) = await fetch(URLRequest(url: search), limit: 2_000_000, truncate: true) else { return nil }
         let html = String(decoding: data, as: UTF8.self)
         let links = matchesOf(#"href="(/ru/book/[a-z0-9-]+-b\d+)""#, in: html)
         var seen = Set<String>()
@@ -471,8 +472,9 @@ enum CoverArt {
     }
 
     private static func pageMeta(_ page: URL) async -> (title: String?, image: URL?)? {
-        guard let (data, _) = try? await session.data(from: page) else { return nil }
-        let html = String(decoding: data.prefix(300_000), as: UTF8.self)
+        // The share preview tags are in the page's head, so the start of the page is enough.
+        guard let (data, _) = await fetch(URLRequest(url: page), limit: 300_000, truncate: true) else { return nil }
+        let html = String(decoding: data, as: UTF8.self)
         func meta(_ names: [String]) -> String? {
             for name in names {
                 let patterns = [#"<meta[^>]+(?:property|name)=["']\#(name)["'][^>]+content=["']([^"']+)"#,
@@ -498,8 +500,13 @@ enum CoverArt {
     // MARK: Helpers
 
     /// Logged to the system log: Xcode's console, or Console.app filtered by category "covers".
+    /// Messages name titles and sites, so Release builds keep them private (shown as a hash).
     private static func note(_ message: String) {
+        #if DEBUG
         log.info("\(message, privacy: .public)")
+        #else
+        log.info("\(message, privacy: .private(mask: .hash))")
+        #endif
     }
 
     /// Apple Books catalogues differ by country; a title in another script is best searched
@@ -537,8 +544,7 @@ enum CoverArt {
     }
 
     private static func fetchJSON(_ request: URLRequest) async -> [String: Any]? {
-        guard let (data, response) = try? await session.data(for: request),
-              (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+        guard let (data, _) = await fetch(request, limit: 5_000_000) else { return nil }
         return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 
@@ -551,21 +557,87 @@ enum CoverArt {
             else { return nil }
             data = decoded
         } else {
-            guard let (fetched, response) = try? await session.data(from: url),
-                  (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+            guard let (fetched, _) = await fetch(URLRequest(url: url), limit: 15_000_000) else { return nil }
             data = fetched
         }
-        guard let image = UIImage(data: data),
-              // Placeholders (Open Library's 1×1 pixel, tiny icons) aren't worth showing.
-              min(image.size.width, image.size.height) >= 100 else { return nil }
-        return image.resized(maxSide: 900).jpegData(compressionQuality: 0.8)
+        return downsampledJPEG(data)
+    }
+
+    /// Decodes only a small version of the image, so a huge or hostile file can't take the
+    /// app's memory. Placeholders (Open Library's 1×1 pixel, tiny icons) aren't worth showing.
+    static func downsampledJPEG(_ data: Data, maxSide: Int = 900, minSide: Double = 100) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.doubleValue,
+              let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.doubleValue,
+              min(width, height) >= minSide, width * height <= 200_000_000 else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxSide,
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+        return UIImage(cgImage: image).jpegData(compressionQuality: 0.8)
+    }
+
+    /// GETs a URL, reading at most `limit` bytes so a huge response can't fill memory. Over the
+    /// limit, the response is dropped, or with `truncate` its start is kept. Hosts on the local
+    /// network are never contacted: their URLs come from screenshots and web pages.
+    private static func fetch(_ request: URLRequest, limit: Int, truncate: Bool = false) async -> (Data, HTTPURLResponse)? {
+        guard let url = request.url, isPublicWebURL(url),
+              let (bytes, response) = try? await session.bytes(for: request),
+              let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
+        if !truncate && http.expectedContentLength > Int64(limit) {
+            bytes.task.cancel()
+            return nil
+        }
+        var data = Data()
+        data.reserveCapacity(min(limit, max(0, Int(http.expectedContentLength))))
+        do {
+            for try await byte in bytes {
+                data.append(byte)
+                if data.count >= limit {
+                    bytes.task.cancel()
+                    return truncate ? (data, http) : nil
+                }
+            }
+        } catch {
+            return nil
+        }
+        return (data, http)
+    }
+
+    /// HTTPS (or HTTP, which App Transport Security then refuses) to a public host name: not
+    /// localhost, a .local name or a private, loopback or link-local IP address.
+    static func isPublicWebURL(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased(), ["http", "https"].contains(scheme),
+              let host = url.host?.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: "[]")),
+              !host.isEmpty else { return false }
+        if host == "localhost" || host.hasSuffix(".localhost") || host.hasSuffix(".local") || host.hasSuffix(".internal") {
+            return false
+        }
+        let octets = host.split(separator: ".").compactMap { UInt8($0) }
+        if octets.count == 4 && host.split(separator: ".").count == 4 {
+            switch (octets[0], octets[1]) {
+            case (10, _), (127, _), (0, _), (169, 254), (192, 168): return false
+            case (172, 16...31), (100, 64...127): return false
+            default: return true
+            }
+        }
+        if host.contains(":") {
+            // IPv6 literals: loopback, unique local (fc00::/7) and link-local (fe80::/10).
+            return !(host == "::1" || host == "::" || host.hasPrefix("fc") || host.hasPrefix("fd") || host.hasPrefix("fe8")
+                     || host.hasPrefix("fe9") || host.hasPrefix("fea") || host.hasPrefix("feb"))
+        }
+        return true
     }
 
     /// Guards against a search returning something else: once case, accents and punctuation
     /// are ignored, one title has to contain the other or be nearly the same ("I Never
     /// Abandoned the Tyrant" / "I Have Never Abandoned the Tyrant").
     /// `loose`: for web page titles, which add "by Author | Shop" around the name.
-    private static func matches(_ found: String?, _ wanted: String, loose: Bool = false) -> Bool {
+    static func matches(_ found: String?, _ wanted: String, loose: Bool = false) -> Bool {
         guard let found else { return false }
         let a = normalized(found), b = normalized(wanted)
         guard !a.isEmpty, !b.isEmpty else { return false }
@@ -594,7 +666,7 @@ enum CoverArt {
 
     /// False only when the text names a year clearly different from the bookmark's. Two years'
     /// slack: the AI's year is sometimes a guess (Crookhaven 2026 read as 2024).
-    private static func sameYear(_ text: String?, _ year: String) -> Bool {
+    static func sameYear(_ text: String?, _ year: String) -> Bool {
         guard let wanted = Int(year), let text else { return true }
         let years = matchesOf(#"\b((?:19|20)\d{2})\b"#, in: text).compactMap(Int.init)
         return years.isEmpty || years.contains { abs($0 - wanted) <= 2 }

@@ -34,26 +34,51 @@ final class ShareModel {
     func save(_ providers: [NSItemProvider]) async {
         var saved = 0
         for provider in providers {
-            if let data = try? await provider.loadImageData() {
-                do {
+            do {
+                if try await provider.copyImageToInbox() {
+                    saved += 1
+                } else if let data = try? await provider.loadImageData() {
                     try SharedInbox.add(data)
                     saved += 1
-                } catch {
-                    state = .failed("Couldn't save to the app. \(error.localizedDescription)")
-                    return
                 }
+            } catch {
+                state = .failed("Couldn't save to the app. \(error.localizedDescription)")
+                return
             }
         }
         state = saved > 0 ? .saved(saved) : .failed("No images found to save.")
     }
 }
 
+// Main-actor methods, so the providers never leave the main actor. The completion handlers are
+// @Sendable, so they don't inherit that isolation: NSItemProvider calls them on a background queue.
+@MainActor
 private extension NSItemProvider {
     func loadImageData() async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
-            _ = loadDataRepresentation(for: .image) { data, error in
+            _ = loadDataRepresentation(for: .image) { @Sendable data, error in
                 if let data { continuation.resume(returning: data) }
                 else { continuation.resume(throwing: error ?? CocoaError(.fileReadUnknown)) }
+            }
+        }
+    }
+
+    /// Copies the shared image file into the inbox. The file is only valid inside the callback,
+    /// so the copy happens there. False when the item has no image file.
+    func copyImageToInbox() async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            _ = loadFileRepresentation(for: .image, openInPlace: false) { @Sendable url, _, _ in
+                guard let url else {
+                    // Not an error worth stopping for: the next item may still work.
+                    continuation.resume(returning: false)
+                    return
+                }
+                do {
+                    try SharedInbox.add(fileAt: url)
+                    continuation.resume(returning: true)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
             }
         }
     }

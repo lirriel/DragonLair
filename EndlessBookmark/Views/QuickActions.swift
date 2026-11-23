@@ -35,7 +35,7 @@ final class QuickActions {
         actions = Self.actions(for: bookmark)
         positions = Self.layout(actions.map(\.id), around: rowFrame, in: screen)
         hovered = nil
-        uiLog.info("Quick actions opened for “\(bookmark.title, privacy: .public)”")
+        uiLog.info("Quick actions opened for “\(bookmark.title, privacy: .private(mask: .hash))”")
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
 
@@ -53,7 +53,7 @@ final class QuickActions {
     /// (e.g. a system gesture), which never applies anything.
     func end(cancelled: Bool = false) {
         if !cancelled, let bookmark, let action = actions.first(where: { $0.id == hovered }) {
-            uiLog.info("Quick action \(action.id, privacy: .public) on “\(bookmark.title, privacy: .public)”")
+            uiLog.info("Quick action \(action.id, privacy: .public) on “\(bookmark.title, privacy: .private(mask: .hash))”")
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation { action.run(bookmark) }
         } else if bookmark != nil {

@@ -158,7 +158,14 @@ There is no server, analytics or account.
 - API keys are stored in the **Keychain**. Provider and model choices are stored in `UserDefaults`.
 - A screenshot is sent to your chosen AI provider only when it's imported. Watching only collects new screenshots for you to review, and nothing is sent until you approve them.
 - Cover lookups send the bookmark's title, creator and year to public catalogues. Screenshots are never sent to them.
+- For sites, places and products, and with Gemini's web search, the app also opens the bookmarked website or the pages found, to read their preview image. Those sites see an ordinary visit from your phone's IP address. Addresses on your local network are never contacted.
+- Backups are plain files: a JSON file and copies of your screenshots. In iCloud Drive they're protected by your Apple Account, but they aren't encrypted by the app, so anything visible in a screenshot is in the backup too.
+- Logs from Release builds hide titles and site addresses.
 - Deleting from Photos always goes through iOS's own confirmation, and photos go to Recently Deleted.
+
+### What a screenshot can do
+
+Anyone can put text into an image, and the AI reads all of it. The worst a screenshot written to fool the AI can do is save a wrong bookmark or point a cover search at a site of its choosing. **Open website** opens only `http` and `https` links, never another app's URL, and downloads are size-limited and decoded at a small size.
 
 ## Building
 
@@ -175,9 +182,18 @@ The Xcode project is generated from [`project.yml`](project.yml) with [XcodeGen]
 xcodegen generate
 ```
 
-In Debug builds, launch with the `-seedSamples` argument to fill an empty library with a few sample bookmarks.
+Debug builds accept two launch arguments:
 
-Cover lookups are logged to the system log under the category `covers`, which you can view in Console.app.
+- `-seedSamples` fills an empty library with a few sample bookmarks.
+- `-stubAI` answers imports with made-up bookmarks after a few seconds, so you can try importing without an API key or network.
+
+The app logs to the system log under the subsystem `com.lirriel.endlessbookmark`, with the categories `import`, `covers`, `photos`, `keychain` and `ui`. View them in Xcode's console or Console.app. Release builds hide titles and site addresses in these logs.
+
+Run the unit tests with:
+
+```bash
+xcodebuild test -scheme EndlessBookmark -destination 'platform=iOS Simulator,name=<an iPhone simulator you have>'
+```
 
 ## Project layout
 

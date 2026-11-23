@@ -189,7 +189,7 @@ enum Backup {
     /// when its shown or original-language title matches either title of one in the app.
     static func restore(_ backup: BackupFile, context: ModelContext) throws -> (added: Int, kept: Int) {
         var known = Set(try context.fetch(FetchDescriptor<Bookmark>()).flatMap { b in
-            [b.title, b.originalTitle].filter { !$0.isEmpty }.map { Bookmark.matchKey(category: b.category, title: $0) }
+            Bookmark.matchKeys(category: b.category, titles: [b.title, b.originalTitle])
         })
         let scanned = Set(try context.fetch(FetchDescriptor<ScannedImage>()).map(\.key))
         var added = 0, kept = 0
@@ -198,8 +198,7 @@ enum Backup {
             let images = folder.appendingPathComponent(imagesFolder, isDirectory: true)
             for r in backup.bookmarks {
                 let category = BookmarkCategory(rawValue: r.category) ?? .other
-                let keys = [r.title, r.originalTitle ?? ""].filter { !$0.isEmpty }
-                    .map { Bookmark.matchKey(category: category, title: $0) }
+                let keys = Bookmark.matchKeys(category: category, titles: [r.title, r.originalTitle ?? ""])
                 guard known.isDisjoint(with: keys) else { kept += 1; continue }
                 known.formUnion(keys)
 

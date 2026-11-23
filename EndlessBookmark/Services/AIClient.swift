@@ -159,7 +159,8 @@ enum Prompt {
     Use "" for a field that is already in English or empty. Keep each item's id.
     """
 
-    static let translateSchema: [String: Any] = [
+    // Never changed after it's built; [String: Any] just can't say so to the compiler.
+    nonisolated(unsafe) static let translateSchema: [String: Any] = [
         "type": "object",
         "additionalProperties": false,
         "required": ["items"],
@@ -184,7 +185,8 @@ enum Prompt {
     /// Every field is required and non-null so the same schema works with both
     /// Anthropic structured outputs and OpenAI strict json_schema mode. Gemini gets a copy
     /// without `additionalProperties`, which its OpenAPI-style schema doesn't accept.
-    static let schema: [String: Any] = [
+    // Never changed after it's built; [String: Any] just can't say so to the compiler.
+    nonisolated(unsafe) static let schema: [String: Any] = [
         "type": "object",
         "additionalProperties": false,
         "required": ["items"],

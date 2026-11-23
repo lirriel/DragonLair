@@ -1,4 +1,5 @@
 import Foundation
+import os
 import Security
 
 /// Optional catalogues that need a free personal key and find covers the keyless ones miss.
@@ -72,10 +73,11 @@ enum AppSettings {
         Keychain.read(account: provider.rawValue) ?? ""
     }
 
-    static func setAPIKey(_ key: String, for provider: AIProviderKind) {
+    /// False when the Keychain refused the change, so the caller can say so.
+    @discardableResult
+    static func setAPIKey(_ key: String, for provider: AIProviderKind) -> Bool {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty { Keychain.delete(account: provider.rawValue) }
-        else { Keychain.write(trimmed, account: provider.rawValue) }
+        return trimmed.isEmpty ? Keychain.delete(account: provider.rawValue) : Keychain.write(trimmed, account: provider.rawValue)
     }
 
     static func coverKey(_ service: CoverService) -> String {
@@ -85,8 +87,8 @@ enum AppSettings {
     static func setCoverKey(_ key: String, for service: CoverService) {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed != coverKey(service) else { return }
-        if trimmed.isEmpty { Keychain.delete(account: "cover.\(service.rawValue)") }
-        else { Keychain.write(trimmed, account: "cover.\(service.rawValue)") }
+        let account = "cover.\(service.rawValue)"
+        guard trimmed.isEmpty ? Keychain.delete(account: account) : Keychain.write(trimmed, account: account) else { return }
         // A new source may have what the others didn't.
         retryMissingCovers = true
     }
@@ -147,6 +149,8 @@ enum AppSettings {
     }
 }
 
+private let keychainLog = Logger(subsystem: "com.lirriel.endlessbookmark", category: "keychain")
+
 enum Keychain {
     private static let service = "com.lirriel.endlessbookmark.apikeys"
 
@@ -165,15 +169,26 @@ enum Keychain {
         return String(data: data, encoding: .utf8)
     }
 
-    static func write(_ value: String, account: String) {
-        delete(account: account)
-        var q = query(account)
-        q[kSecValueData as String] = Data(value.utf8)
-        q[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        SecItemAdd(q as CFDictionary, nil)
+    /// Updates the key in place, or adds it. Readable after the first unlock (background imports
+    /// need it), and only on this device, so it never goes into backups. False on failure.
+    @discardableResult
+    static func write(_ value: String, account: String) -> Bool {
+        let attributes: [String: Any] = [kSecValueData as String: Data(value.utf8),
+                                         kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly]
+        var status = SecItemUpdate(query(account) as CFDictionary, attributes as CFDictionary)
+        if status == errSecItemNotFound {
+            status = SecItemAdd(query(account).merging(attributes) { $1 } as CFDictionary, nil)
+        }
+        if status != errSecSuccess { keychainLog.error("Saving a key failed: OSStatus \(status)") }
+        return status == errSecSuccess
     }
 
-    static func delete(account: String) {
-        SecItemDelete(query(account) as CFDictionary)
+    @discardableResult
+    static func delete(account: String) -> Bool {
+        let status = SecItemDelete(query(account) as CFDictionary)
+        if status != errSecSuccess && status != errSecItemNotFound {
+            keychainLog.error("Deleting a key failed: OSStatus \(status)")
+        }
+        return status == errSecSuccess || status == errSecItemNotFound
     }
 }

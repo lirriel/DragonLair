@@ -160,7 +160,7 @@ struct BookmarkDetailView: View {
         }
         .onAppear {
             let ms = Int(Date.now.timeIntervalSince(lastNavigationRequest) * 1000)
-            uiLog.info("Opened “\(bookmark.title, privacy: .public)” \(ms) ms after navigation was requested")
+            uiLog.info("Opened “\(bookmark.title, privacy: .private(mask: .hash))” \(ms) ms after navigation was requested")
         }
         .task { originalInPhotos = !ScreenshotLibrary.existing([bookmark.sourceAssetID].filter { !$0.isEmpty }).isEmpty }
         .fullScreenCover(isPresented: $showScreenshot) { ScreenshotViewer(data: bookmark.screenshot) }
@@ -258,7 +258,7 @@ struct BookmarkDetailView: View {
         bookmark.title = bookmark.title.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
             try context.save()
-            uiLog.info("Saved edits to “\(bookmark.title, privacy: .public)”")
+            uiLog.info("Saved edits to “\(bookmark.title, privacy: .private(mask: .hash))”")
         } catch {
             uiLog.error("Saving edits failed: \(String(describing: error), privacy: .public)")
             rereadError = "Couldn't save: \(error.localizedDescription)"
@@ -290,7 +290,7 @@ struct BookmarkDetailView: View {
             try await importQueue.reread(bookmark, context: context)
             rereadError = nil
         } catch {
-            uiLog.error("Re-read of “\(bookmark.title, privacy: .public)” failed: \(String(describing: error), privacy: .public)")
+            uiLog.error("Re-read of “\(bookmark.title, privacy: .private(mask: .hash))” failed: \(String(describing: error), privacy: .public)")
             uiLog.error("Re-read failed: \(error, privacy: .public)")
             rereadError = error.localizedDescription
         }

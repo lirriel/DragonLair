@@ -118,7 +118,9 @@ enum ScreenshotLibrary {
     }
 }
 
-/// Calls `onChange` whenever the photo library changes while the app is running.
+/// Calls `onChange` whenever the photo library changes while the app is running. Lives on the
+/// main actor; Photos reports changes on a background queue, so the callback hops over.
+@MainActor
 final class ScreenshotWatcher: NSObject, PHPhotoLibraryChangeObserver {
     var onChange: (@MainActor () -> Void)?
     private var registered = false
@@ -135,7 +137,7 @@ final class ScreenshotWatcher: NSObject, PHPhotoLibraryChangeObserver {
         registered = false
     }
 
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
-        Task { @MainActor in self.onChange?() }
+    nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
+        Task { @MainActor [weak self] in self?.onChange?() }
     }
 }
