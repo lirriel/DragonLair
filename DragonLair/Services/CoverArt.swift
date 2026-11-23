@@ -5,7 +5,7 @@ import OSLog
 import UIKit
 import Vision
 
-private let log = Logger(subsystem: "com.lirriel.endlessbookmark", category: "covers")
+private let log = Logger(subsystem: "com.lirriel.dragonlair", category: "covers")
 
 /// Finds official artwork for a bookmark (book cover, poster, site preview…) from free
 /// public sources that need no API key, so the list shows that instead of the screenshot.

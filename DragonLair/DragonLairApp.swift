@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct EndlessBookmarkApp: App {
+struct DragonLairApp: App {
     @State private var importQueue = ImportQueue()
     private let container: ModelContainer
 

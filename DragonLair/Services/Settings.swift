@@ -149,9 +149,10 @@ enum AppSettings {
     }
 }
 
-private let keychainLog = Logger(subsystem: "com.lirriel.endlessbookmark", category: "keychain")
+private let keychainLog = Logger(subsystem: "com.lirriel.dragonlair", category: "keychain")
 
 enum Keychain {
+    // Keeps the app's first name: renaming it would lose every saved key.
     private static let service = "com.lirriel.endlessbookmark.apikeys"
 
     private static func query(_ account: String) -> [String: Any] {

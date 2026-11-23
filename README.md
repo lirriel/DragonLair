@@ -41,7 +41,7 @@
 
 Most people save things to come back to by taking a screenshot: a book on TikTok, a café on Instagram, a "top 10 manhwa" list, a serum someone recommended. Then the screenshots get lost in the camera roll among thousands of others.
 
-Dragon Lair (project name *EndlessBookmark*) is a personal hoard for those finds. It reads the screenshots for you. An AI vision model works out what each one shows, and the app saves it as a proper bookmark: title, author or brand, year, summary, tags, and an official cover found online. Then you can delete the screenshots from Photos.
+Dragon Lair is a personal hoard for those finds. It reads the screenshots for you. An AI vision model works out what each one shows, and the app saves it as a proper bookmark: title, author or brand, year, summary, tags, and an official cover found online. Then you can delete the screenshots from Photos.
 
 A few rules shaped the design:
 
@@ -133,7 +133,7 @@ The app is a single SwiftUI target plus a Share Extension, with no third-party d
 
 | Layer | Types | Responsibility |
 | --- | --- | --- |
-| **App** | `EndlessBookmarkApp` | Sets up the SwiftData container and injects one `ImportQueue` into the environment. |
+| **App** | `DragonLairApp` | Sets up the SwiftData container and injects one `ImportQueue` into the environment. |
 | **Views** | `LibraryView`, `BookmarkDetailView`, `ArchiveView`, `ImportListView`, `ReviewScreenshotsView`, `ScreenshotFolderView`, `OriginalsView`, `BackupView`, `SettingsView`, `QuickActions` | SwiftUI screens. `LibraryView` also handles the app lifecycle: when the app becomes active it drains the inbox, refreshes watching, resumes stopped imports and starts the cover search; when it goes to the background it writes a backup. |
 | **Orchestration** | `ImportQueue` (`@Observable`, `@MainActor`) | The single source of truth for import jobs and their states (`done`, `skipped`, `nothingFound`, `failed`). It also handles screenshots waiting for review, deleting originals, re-reading and the cover search. |
 | **Services** | `AIClient`, `CoverArt`, `ScreenshotLibrary` / `ScreenshotWatcher`, `BackgroundImport`, `Backup`, `AppSettings` / `Keychain` | Stateless or small helpers, each wrapping one outside system. |
@@ -171,8 +171,8 @@ Anyone can put text into an image, and the AI reads all of it. The worst a scree
 
 **Requirements:** Xcode with the iOS 18 SDK or later. iOS 26 is needed for imports to keep running in the background.
 
-1. Open `EndlessBookmark.xcodeproj`.
-2. Under *Signing & Capabilities*, choose your own team for both the **EndlessBookmark** and **ShareExtension** targets. If they're taken, change the bundle identifiers and the App Group (`group.com.lirriel.endlessbookmark`, also in `Shared/SharedInbox.swift`).
+1. Open `DragonLair.xcodeproj`.
+2. Under *Signing & Capabilities*, choose your own team for both the **DragonLair** and **ShareExtension** targets. If they're taken, change the bundle identifiers and the App Group (`group.com.lirriel.endlessbookmark`, also in `Shared/SharedInbox.swift`). These IDs keep the app's first name, *EndlessBookmark*, so existing installs keep their library and keys.
 3. Run on a device or simulator.
 4. In the app, open **Settings** and add an API key for one AI provider. Optionally add TMDB, Hardcover or Google Books keys to find more covers.
 
@@ -187,22 +187,24 @@ Debug builds accept two launch arguments:
 - `-seedSamples` fills an empty library with a few sample bookmarks.
 - `-stubAI` answers imports with made-up bookmarks after a few seconds, so you can try importing without an API key or network.
 
-The app logs to the system log under the subsystem `com.lirriel.endlessbookmark`, with the categories `import`, `covers`, `photos`, `keychain` and `ui`. View them in Xcode's console or Console.app. Release builds hide titles and site addresses in these logs.
+The app logs to the system log under the subsystem `com.lirriel.dragonlair`, with the categories `import`, `covers`, `photos`, `keychain` and `ui`. View them in Xcode's console or Console.app. Release builds hide titles and site addresses in these logs.
 
 Run the unit tests with:
 
 ```bash
-xcodebuild test -scheme EndlessBookmark -destination 'platform=iOS Simulator,name=<an iPhone simulator you have>'
+xcodebuild test -scheme DragonLair -destination 'platform=iOS Simulator,name=<an iPhone simulator you have>'
 ```
 
 ## Project layout
 
 ```
-EndlessBookmark/
-├── EndlessBookmarkApp.swift   App entry, SwiftData container
+DragonLair/
+├── DragonLairApp.swift        App entry, SwiftData container
 ├── SampleData.swift           Debug-only sample library (-seedSamples)
+├── PrivacyInfo.xcprivacy      Privacy manifest
 ├── Models/
-│   └── Bookmark.swift         Bookmark, ScannedImage, categories, statuses, match keys
+│   ├── Bookmark.swift         Bookmark, ScannedImage, categories, statuses, match keys
+│   └── LibrarySchema.swift    Versioned SwiftData schema and migration plan
 ├── Services/
 │   ├── AIClient.swift         Prompt, JSON schema, Claude / OpenAI / Gemini clients, retries
 │   ├── ImportQueue.swift      Import pipeline, review, re-read, cover search
@@ -212,6 +214,7 @@ EndlessBookmark/
 │   ├── Backup.swift           JSON + image backup and additive restore
 │   └── Settings.swift         AppSettings, cover services, Keychain
 └── Views/                     SwiftUI screens
+DragonLairTests/               Unit tests (Swift Testing)
 ShareExtension/                Share sheet target → SharedInbox
 Shared/SharedInbox.swift       App Group file handoff used by both targets
 Design/                        App icon and its source; earlier concepts in Design/explorations

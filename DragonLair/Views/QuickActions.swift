@@ -2,8 +2,8 @@ import OSLog
 import SwiftUI
 import UIKit
 
-/// Filter Console.app by subsystem "com.lirriel.endlessbookmark" to follow these.
-let uiLog = Logger(subsystem: "com.lirriel.endlessbookmark", category: "ui")
+/// Filter Console.app by subsystem "com.lirriel.dragonlair" to follow these.
+let uiLog = Logger(subsystem: "com.lirriel.dragonlair", category: "ui")
 
 /// When the last navigation was requested, so the opened screen can log how long it took.
 @MainActor var lastNavigationRequest = Date.now

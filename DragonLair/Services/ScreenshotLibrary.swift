@@ -3,7 +3,7 @@ import OSLog
 import Photos
 import UIKit
 
-private let log = Logger(subsystem: "com.lirriel.endlessbookmark", category: "photos")
+private let log = Logger(subsystem: "com.lirriel.dragonlair", category: "photos")
 
 /// Reads the system Screenshots album directly, for period imports and watching.
 enum ScreenshotLibrary {

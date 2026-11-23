@@ -1,0 +1,689 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		116A1339F147F15821A990FC /* ScreenshotLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640A37984C07F94214DEED0 /* ScreenshotLibrary.swift */; };
+		18B7CFA251F6CF2EDA3EEAB2 /* ImportQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5B17844A3CD74A2728C6BB /* ImportQueue.swift */; };
+		29C94071686C1DDA592D9044 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8F6E454E86B4BD4F739D9E4 /* PrivacyInfo.xcprivacy */; };
+		2D6E7E1BEB0C1EA0F6D47399 /* ImportListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */; };
+		2ED526BB648411A79C769BB3 /* ScreenshotFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FA47656439F1D1CDFFD100 /* ScreenshotFolderView.swift */; };
+		3889AE7B363807D40A77DFEE /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1907C65A00D64654D7A73A3E /* ArchiveView.swift */; };
+		47B1263DAC4F1045AA2FCDEB /* LibrarySchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72450C043C19D158057CA5F /* LibrarySchema.swift */; };
+		50E843F5C305CA17761475F0 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7411D6EC61F23CEB7688F9 /* Bookmark.swift */; };
+		6BBD7E9381E13504BD03A2A5 /* ReviewScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */; };
+		70B348A1114A7C67E739ACB0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EA674A2F6089DF32A534FC08 /* PrivacyInfo.xcprivacy */; };
+		7342766DEA86A53584AF04C5 /* DragonLairApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23282DB67326D0A42E435E7A /* DragonLairApp.swift */; };
+		76C4C39D34D4BDA96F16293D /* BackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F9E1F8918D60FF26C799413 /* BackupView.swift */; };
+		76FC8A668EC729BCD23A5BFC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AB086FF25D55A792F7DFD2C7 /* Assets.xcassets */; };
+		802184BC2C71F5A90C413234 /* CoverSourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66E1B720FB9E357E8B08222 /* CoverSourcesView.swift */; };
+		84C4891707ECEA36A042CA70 /* AIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACFBBE80B953D6CC538B19B2 /* AIClient.swift */; };
+		86A8899EB184F19AC8E5E9B3 /* OriginalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC6293FB697399C47D289DC8 /* OriginalsView.swift */; };
+		8BFCE4EC854742AE1AFB4EA8 /* BackgroundImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E0D37D479B94159A6DBB4D /* BackgroundImport.swift */; };
+		8C430086205138F686B2FA47 /* Backup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC53474EF9004E24B17D0B9 /* Backup.swift */; };
+		9434FDE2A86572F238C69C92 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE04B4135B2B8C8B42B9BA2B /* ShareViewController.swift */; };
+		A498CE953B2C44E86C5BB308 /* BookmarkDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3738793A1E9FAF79EEE88E85 /* BookmarkDetailView.swift */; };
+		AEB6036DAE83FEB695C9511C /* SharedInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07551404964DD063892171B8 /* SharedInbox.swift */; };
+		C79F7C7272B76BF93615A65C /* CoverArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7316FE592833D1ACD4A44DA0 /* CoverArt.swift */; };
+		D73DF1A39929572A70D31EEE /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */; };
+		DE917D496E6DA247EF4FB227 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F0BA6A348140131228F5A /* Settings.swift */; };
+		E5723C6D3E486E23FE2840A0 /* DragonLairTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77976D7C3143883DF2CFF3F /* DragonLairTests.swift */; };
+		EDA035B1C87A58DF1D10E8F3 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55D50B2BF20110074654C213 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F2896E9AD39286B7ECDF7FCD /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1F394BFE42E9425E9DCC8D /* SampleData.swift */; };
+		F2A4C71CA7034EBED29DF96A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D049E96AA272032C58E5A /* SettingsView.swift */; };
+		F6B325EACBA0DE0C82B7A844 /* SharedInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07551404964DD063892171B8 /* SharedInbox.swift */; };
+		FE0901492F4C9FDA1ADA5724 /* QuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07EC5239687BE33D0FD1888D /* QuickActions.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		260DE6FE2B1E9FD822F29B72 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E4CBACBCF11B69347BC3E64 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3EFDB6F81FBF8E53AC35E321;
+			remoteInfo = DragonLair;
+		};
+		6D3212062A334E356C49B95F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E4CBACBCF11B69347BC3E64 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A7F80DFC07491C3A67BCB26;
+			remoteInfo = ShareExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EF60993DCC644349B4323356 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				EDA035B1C87A58DF1D10E8F3 /* ShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		07551404964DD063892171B8 /* SharedInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedInbox.swift; sourceTree = "<group>"; };
+		07EC5239687BE33D0FD1888D /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
+		1907C65A00D64654D7A73A3E /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
+		1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewScreenshotsView.swift; sourceTree = "<group>"; };
+		23282DB67326D0A42E435E7A /* DragonLairApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragonLairApp.swift; sourceTree = "<group>"; };
+		2C669CCD163DCCA6304739DD /* DragonLair.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DragonLair.entitlements; sourceTree = "<group>"; };
+		360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		3738793A1E9FAF79EEE88E85 /* BookmarkDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkDetailView.swift; sourceTree = "<group>"; };
+		3C7411D6EC61F23CEB7688F9 /* Bookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
+		3F9E1F8918D60FF26C799413 /* BackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupView.swift; sourceTree = "<group>"; };
+		4B6E8AB14E6A81ED6EEB2306 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		54B495AB5FE833F24E99B648 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		55D50B2BF20110074654C213 /* ShareExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		623209604BF1B1363127ED34 /* DragonLair.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DragonLair.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6BC53474EF9004E24B17D0B9 /* Backup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backup.swift; sourceTree = "<group>"; };
+		7316FE592833D1ACD4A44DA0 /* CoverArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArt.swift; sourceTree = "<group>"; };
+		78181FA4A4A2F590EBD838A5 /* DragonLairTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DragonLairTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0F0BA6A348140131228F5A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		A72450C043C19D158057CA5F /* LibrarySchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySchema.swift; sourceTree = "<group>"; };
+		AB086FF25D55A792F7DFD2C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		ACFBBE80B953D6CC538B19B2 /* AIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIClient.swift; sourceTree = "<group>"; };
+		AD0D049E96AA272032C58E5A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AF1F394BFE42E9425E9DCC8D /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
+		B8FA47656439F1D1CDFFD100 /* ScreenshotFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotFolderView.swift; sourceTree = "<group>"; };
+		C640A37984C07F94214DEED0 /* ScreenshotLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotLibrary.swift; sourceTree = "<group>"; };
+		D2E0D37D479B94159A6DBB4D /* BackgroundImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundImport.swift; sourceTree = "<group>"; };
+		D8F6E454E86B4BD4F739D9E4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		DD5B17844A3CD74A2728C6BB /* ImportQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportQueue.swift; sourceTree = "<group>"; };
+		E77976D7C3143883DF2CFF3F /* DragonLairTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragonLairTests.swift; sourceTree = "<group>"; };
+		EA674A2F6089DF32A534FC08 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportListView.swift; sourceTree = "<group>"; };
+		EE04B4135B2B8C8B42B9BA2B /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		EE2D0FAB6F92C3DC9F952718 /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
+		F66E1B720FB9E357E8B08222 /* CoverSourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverSourcesView.swift; sourceTree = "<group>"; };
+		FC6293FB697399C47D289DC8 /* OriginalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OriginalsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		086DB630C652C35E17DA58A6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				623209604BF1B1363127ED34 /* DragonLair.app */,
+				78181FA4A4A2F590EBD838A5 /* DragonLairTests.xctest */,
+				55D50B2BF20110074654C213 /* ShareExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3F454214B24F085D3BAB3E36 /* DragonLairTests */ = {
+			isa = PBXGroup;
+			children = (
+				E77976D7C3143883DF2CFF3F /* DragonLairTests.swift */,
+			);
+			path = DragonLairTests;
+			sourceTree = "<group>";
+		};
+		3FE03B69E85CF2350748097F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				07551404964DD063892171B8 /* SharedInbox.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		6FBA49DB1CF59F2DA2B839D7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3C7411D6EC61F23CEB7688F9 /* Bookmark.swift */,
+				A72450C043C19D158057CA5F /* LibrarySchema.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A4EC443D054DCD577D0D2C78 = {
+			isa = PBXGroup;
+			children = (
+				F851656EA0A28822EF307D1C /* DragonLair */,
+				3F454214B24F085D3BAB3E36 /* DragonLairTests */,
+				3FE03B69E85CF2350748097F /* Shared */,
+				E35F77685FD718C4DCD9E2A1 /* ShareExtension */,
+				086DB630C652C35E17DA58A6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B476C885EFD42CC058AD9A99 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1907C65A00D64654D7A73A3E /* ArchiveView.swift */,
+				3F9E1F8918D60FF26C799413 /* BackupView.swift */,
+				3738793A1E9FAF79EEE88E85 /* BookmarkDetailView.swift */,
+				F66E1B720FB9E357E8B08222 /* CoverSourcesView.swift */,
+				ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */,
+				360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */,
+				FC6293FB697399C47D289DC8 /* OriginalsView.swift */,
+				07EC5239687BE33D0FD1888D /* QuickActions.swift */,
+				1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */,
+				B8FA47656439F1D1CDFFD100 /* ScreenshotFolderView.swift */,
+				AD0D049E96AA272032C58E5A /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D4D5BCD533494C6481A23ED0 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				ACFBBE80B953D6CC538B19B2 /* AIClient.swift */,
+				D2E0D37D479B94159A6DBB4D /* BackgroundImport.swift */,
+				6BC53474EF9004E24B17D0B9 /* Backup.swift */,
+				7316FE592833D1ACD4A44DA0 /* CoverArt.swift */,
+				DD5B17844A3CD74A2728C6BB /* ImportQueue.swift */,
+				C640A37984C07F94214DEED0 /* ScreenshotLibrary.swift */,
+				7A0F0BA6A348140131228F5A /* Settings.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		E35F77685FD718C4DCD9E2A1 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				54B495AB5FE833F24E99B648 /* Info.plist */,
+				EA674A2F6089DF32A534FC08 /* PrivacyInfo.xcprivacy */,
+				EE2D0FAB6F92C3DC9F952718 /* ShareExtension.entitlements */,
+				EE04B4135B2B8C8B42B9BA2B /* ShareViewController.swift */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		F851656EA0A28822EF307D1C /* DragonLair */ = {
+			isa = PBXGroup;
+			children = (
+				AB086FF25D55A792F7DFD2C7 /* Assets.xcassets */,
+				2C669CCD163DCCA6304739DD /* DragonLair.entitlements */,
+				23282DB67326D0A42E435E7A /* DragonLairApp.swift */,
+				4B6E8AB14E6A81ED6EEB2306 /* Info.plist */,
+				D8F6E454E86B4BD4F739D9E4 /* PrivacyInfo.xcprivacy */,
+				AF1F394BFE42E9425E9DCC8D /* SampleData.swift */,
+				6FBA49DB1CF59F2DA2B839D7 /* Models */,
+				D4D5BCD533494C6481A23ED0 /* Services */,
+				B476C885EFD42CC058AD9A99 /* Views */,
+			);
+			path = DragonLair;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A7F80DFC07491C3A67BCB26 /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A405B16193704A148E4A9CB /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				675749E20C8A52120429640B /* Sources */,
+				8ADC8ECBDCBDA6F53CA6101B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			packageProductDependencies = (
+			);
+			productName = ShareExtension;
+			productReference = 55D50B2BF20110074654C213 /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		3EFDB6F81FBF8E53AC35E321 /* DragonLair */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9FB92F98C84171D052DEF1A6 /* Build configuration list for PBXNativeTarget "DragonLair" */;
+			buildPhases = (
+				8C5BC8B5707BEA521EAFCF02 /* Sources */,
+				86B9A216A9F6D3CBF8ADA4DA /* Resources */,
+				EF60993DCC644349B4323356 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8E831D9CE8BD6956DD2C08D7 /* PBXTargetDependency */,
+			);
+			name = DragonLair;
+			packageProductDependencies = (
+			);
+			productName = DragonLair;
+			productReference = 623209604BF1B1363127ED34 /* DragonLair.app */;
+			productType = "com.apple.product-type.application";
+		};
+		5C1FCC2456FF0801EA6D55C8 /* DragonLairTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB345568247EFBCD2671544C /* Build configuration list for PBXNativeTarget "DragonLairTests" */;
+			buildPhases = (
+				6B2B9C3FD50CA4B11051F540 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2174D1B5CE4BA912212555FE /* PBXTargetDependency */,
+			);
+			name = DragonLairTests;
+			packageProductDependencies = (
+			);
+			productName = DragonLairTests;
+			productReference = 78181FA4A4A2F590EBD838A5 /* DragonLairTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8E4CBACBCF11B69347BC3E64 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0A7F80DFC07491C3A67BCB26 = {
+						DevelopmentTeam = D2K9WSX9F8;
+						ProvisioningStyle = Automatic;
+					};
+					3EFDB6F81FBF8E53AC35E321 = {
+						DevelopmentTeam = D2K9WSX9F8;
+						ProvisioningStyle = Automatic;
+					};
+					5C1FCC2456FF0801EA6D55C8 = {
+						DevelopmentTeam = D2K9WSX9F8;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 634C6D00D2928C81EDD9D325 /* Build configuration list for PBXProject "DragonLair" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A4EC443D054DCD577D0D2C78;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 086DB630C652C35E17DA58A6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3EFDB6F81FBF8E53AC35E321 /* DragonLair */,
+				5C1FCC2456FF0801EA6D55C8 /* DragonLairTests */,
+				0A7F80DFC07491C3A67BCB26 /* ShareExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		86B9A216A9F6D3CBF8ADA4DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76FC8A668EC729BCD23A5BFC /* Assets.xcassets in Resources */,
+				29C94071686C1DDA592D9044 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8ADC8ECBDCBDA6F53CA6101B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				70B348A1114A7C67E739ACB0 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		675749E20C8A52120429640B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9434FDE2A86572F238C69C92 /* ShareViewController.swift in Sources */,
+				F6B325EACBA0DE0C82B7A844 /* SharedInbox.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6B2B9C3FD50CA4B11051F540 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E5723C6D3E486E23FE2840A0 /* DragonLairTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C5BC8B5707BEA521EAFCF02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84C4891707ECEA36A042CA70 /* AIClient.swift in Sources */,
+				3889AE7B363807D40A77DFEE /* ArchiveView.swift in Sources */,
+				8BFCE4EC854742AE1AFB4EA8 /* BackgroundImport.swift in Sources */,
+				8C430086205138F686B2FA47 /* Backup.swift in Sources */,
+				76C4C39D34D4BDA96F16293D /* BackupView.swift in Sources */,
+				50E843F5C305CA17761475F0 /* Bookmark.swift in Sources */,
+				A498CE953B2C44E86C5BB308 /* BookmarkDetailView.swift in Sources */,
+				C79F7C7272B76BF93615A65C /* CoverArt.swift in Sources */,
+				802184BC2C71F5A90C413234 /* CoverSourcesView.swift in Sources */,
+				7342766DEA86A53584AF04C5 /* DragonLairApp.swift in Sources */,
+				2D6E7E1BEB0C1EA0F6D47399 /* ImportListView.swift in Sources */,
+				18B7CFA251F6CF2EDA3EEAB2 /* ImportQueue.swift in Sources */,
+				47B1263DAC4F1045AA2FCDEB /* LibrarySchema.swift in Sources */,
+				D73DF1A39929572A70D31EEE /* LibraryView.swift in Sources */,
+				86A8899EB184F19AC8E5E9B3 /* OriginalsView.swift in Sources */,
+				FE0901492F4C9FDA1ADA5724 /* QuickActions.swift in Sources */,
+				6BBD7E9381E13504BD03A2A5 /* ReviewScreenshotsView.swift in Sources */,
+				F2896E9AD39286B7ECDF7FCD /* SampleData.swift in Sources */,
+				2ED526BB648411A79C769BB3 /* ScreenshotFolderView.swift in Sources */,
+				116A1339F147F15821A990FC /* ScreenshotLibrary.swift in Sources */,
+				DE917D496E6DA247EF4FB227 /* Settings.swift in Sources */,
+				F2A4C71CA7034EBED29DF96A /* SettingsView.swift in Sources */,
+				AEB6036DAE83FEB695C9511C /* SharedInbox.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2174D1B5CE4BA912212555FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3EFDB6F81FBF8E53AC35E321 /* DragonLair */;
+			targetProxy = 260DE6FE2B1E9FD822F29B72 /* PBXContainerItemProxy */;
+		};
+		8E831D9CE8BD6956DD2C08D7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A7F80DFC07491C3A67BCB26 /* ShareExtension */;
+			targetProxy = 6D3212062A334E356C49B95F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		18DA4845B79BAAFC999DADB5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DragonLair/DragonLair.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DragonLair/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Dragon Lair";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Dragon Lair reads your Screenshots album to turn screenshots into bookmarks.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		1D2C446BAAF11D41DE821E5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.share;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		46BFCB507B5C3E4163A948FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.share;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4F3B3C5B5DD06FCB50CC0D93 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DragonLair/DragonLair.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DragonLair/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Dragon Lair";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Dragon Lair reads your Screenshots album to turn screenshots into bookmarks.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		75C514F5B33A490F4F283135 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = D2K9WSX9F8;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		9FCA793DE3EC8C836C855921 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = D2K9WSX9F8;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		D09418336C00A89EBF7C0E68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DragonLair.app/DragonLair";
+			};
+			name = Release;
+		};
+		FF9DF58A82AD6A863C5BDE89 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lirriel.endlessbookmark.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DragonLair.app/DragonLair";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1A405B16193704A148E4A9CB /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46BFCB507B5C3E4163A948FC /* Debug */,
+				1D2C446BAAF11D41DE821E5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		634C6D00D2928C81EDD9D325 /* Build configuration list for PBXProject "DragonLair" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				75C514F5B33A490F4F283135 /* Debug */,
+				9FCA793DE3EC8C836C855921 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9FB92F98C84171D052DEF1A6 /* Build configuration list for PBXNativeTarget "DragonLair" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F3B3C5B5DD06FCB50CC0D93 /* Debug */,
+				18DA4845B79BAAFC999DADB5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CB345568247EFBCD2671544C /* Build configuration list for PBXNativeTarget "DragonLairTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF9DF58A82AD6A863C5BDE89 /* Debug */,
+				D09418336C00A89EBF7C0E68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8E4CBACBCF11B69347BC3E64 /* Project object */;
+}

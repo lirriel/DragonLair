@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "062FDEC4B2DC5173F17E2D86"
-               BuildableName = "EndlessBookmark.app"
-               BlueprintName = "EndlessBookmark"
-               ReferencedContainer = "container:EndlessBookmark.xcodeproj">
+               BlueprintIdentifier = "3EFDB6F81FBF8E53AC35E321"
+               BuildableName = "DragonLair.app"
+               BlueprintName = "DragonLair"
+               ReferencedContainer = "container:DragonLair.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "062FDEC4B2DC5173F17E2D86"
-            BuildableName = "EndlessBookmark.app"
-            BlueprintName = "EndlessBookmark"
-            ReferencedContainer = "container:EndlessBookmark.xcodeproj">
+            BlueprintIdentifier = "3EFDB6F81FBF8E53AC35E321"
+            BuildableName = "DragonLair.app"
+            BlueprintName = "DragonLair"
+            ReferencedContainer = "container:DragonLair.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -44,10 +44,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F477FF331A80DFD807D26AF1"
-               BuildableName = "EndlessBookmarkTests.xctest"
-               BlueprintName = "EndlessBookmarkTests"
-               ReferencedContainer = "container:EndlessBookmark.xcodeproj">
+               BlueprintIdentifier = "5C1FCC2456FF0801EA6D55C8"
+               BuildableName = "DragonLairTests.xctest"
+               BlueprintName = "DragonLairTests"
+               ReferencedContainer = "container:DragonLair.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "062FDEC4B2DC5173F17E2D86"
-            BuildableName = "EndlessBookmark.app"
-            BlueprintName = "EndlessBookmark"
-            ReferencedContainer = "container:EndlessBookmark.xcodeproj">
+            BlueprintIdentifier = "3EFDB6F81FBF8E53AC35E321"
+            BuildableName = "DragonLair.app"
+            BlueprintName = "DragonLair"
+            ReferencedContainer = "container:DragonLair.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -87,10 +87,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "062FDEC4B2DC5173F17E2D86"
-            BuildableName = "EndlessBookmark.app"
-            BlueprintName = "EndlessBookmark"
-            ReferencedContainer = "container:EndlessBookmark.xcodeproj">
+            BlueprintIdentifier = "3EFDB6F81FBF8E53AC35E321"
+            BuildableName = "DragonLair.app"
+            BlueprintName = "DragonLair"
+            ReferencedContainer = "container:DragonLair.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>

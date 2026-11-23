@@ -9,7 +9,7 @@ import UIKit
 import os
 
 /// Import pipeline and AI calls. Filter Console.app by category "import" to follow an import.
-let importLog = Logger(subsystem: "com.lirriel.endlessbookmark", category: "import")
+let importLog = Logger(subsystem: "com.lirriel.dragonlair", category: "import")
 
 /// Processes picked screenshots one at a time and turns them into bookmarks.
 @MainActor

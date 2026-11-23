@@ -1,4 +1,4 @@
-name: EndlessBookmark
+name: DragonLair
 options:
   bundleIdPrefix: com.lirriel
   deploymentTarget:
@@ -9,17 +9,20 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: D2K9WSX9F8
+# The app was first called EndlessBookmark. Its bundle IDs, App Group, background task ID and
+# Keychain service keep that name on purpose: changing them would make iOS treat it as a new
+# app, with an empty library and no saved keys.
 targets:
-  EndlessBookmark:
+  DragonLair:
     type: application
     platform: iOS
-    sources: [EndlessBookmark, Shared]
+    sources: [DragonLair, Shared]
     dependencies:
       - target: ShareExtension
     scheme:
-      testTargets: [EndlessBookmarkTests]
+      testTargets: [DragonLairTests]
     info:
-      path: EndlessBookmark/Info.plist
+      path: DragonLair/Info.plist
       properties:
         # Continued processing tasks get a per-run suffix, see BackgroundImport.
         BGTaskSchedulerPermittedIdentifiers: [com.lirriel.endlessbookmark.import.*]
@@ -29,7 +32,7 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
     entitlements:
-      path: EndlessBookmark/EndlessBookmark.entitlements
+      path: DragonLair/DragonLair.entitlements
       properties:
         com.apple.security.application-groups: [group.com.lirriel.endlessbookmark]
     settings:
@@ -45,12 +48,12 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
 
-  EndlessBookmarkTests:
+  DragonLairTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [EndlessBookmarkTests]
+    sources: [DragonLairTests]
     dependencies:
-      - target: EndlessBookmark
+      - target: DragonLair
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lirriel.endlessbookmark.tests

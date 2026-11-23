@@ -46,8 +46,8 @@ jobs:
       - name: Check the Xcode project matches project.yml
         run: |
           xcodegen generate --quiet
-          if ! git diff --exit-code -- EndlessBookmark.xcodeproj; then
-            echo "::error::EndlessBookmark.xcodeproj is out of date. Run 'xcodegen generate' and commit the result."
+          if ! git diff --exit-code -- DragonLair.xcodeproj; then
+            echo "::error::DragonLair.xcodeproj is out of date. Run 'xcodegen generate' and commit the result."
             exit 1
           fi
 
@@ -61,8 +61,8 @@ jobs:
                      if "iOS" in runtime for d in list_ if d["name"].startswith("iPhone")))')
           echo "Testing on simulator $UDID"
           xcodebuild test \
-            -project EndlessBookmark.xcodeproj \
-            -scheme EndlessBookmark \
+            -project DragonLair.xcodeproj \
+            -scheme DragonLair \
             -destination "platform=iOS Simulator,id=$UDID" \
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
