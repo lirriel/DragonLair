@@ -34,6 +34,7 @@
 - [Privacy](#privacy)
 - [Building](#building)
 - [Project layout](#project-layout)
+- [License](#license)
 
 ## The idea
 
@@ -200,3 +201,13 @@ Design/                        App icon and its source; earlier concepts in Desi
 docs/                          README images
 project.yml                    XcodeGen spec
 ```
+
+## License
+
+Dragon Lair is source-available under the [PolyForm Strict License 1.0.0](LICENSE.md).
+
+- **You may** read the code and build the app to use yourself, for any noncommercial purpose.
+- **You may not** sell it, use it commercially, publish modified versions, or redistribute copies, including free ones.
+- The name "Dragon Lair" and the app icon aren't covered by the license.
+
+If you'd like to contribute or use it some other way, open an issue and ask.

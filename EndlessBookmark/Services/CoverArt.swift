@@ -148,10 +148,11 @@ enum CoverArt {
     }
 
     private static func search(_ q: Query) async -> Found? {
-        func plain(_ source: @escaping @Sendable (Query) async -> URL?) -> @Sendable (Query) async -> Hit? {
+        // Sources run one after another in this task, so none of these closures cross an isolation boundary.
+        func plain(_ source: @escaping (Query) async -> URL?) -> (Query) async -> Hit? {
             { await source($0).map { Hit(url: $0) } }
         }
-        let sources: [@Sendable (Query) async -> Hit?] = switch q.category {
+        let sources: [(Query) async -> Hit?] = switch q.category {
         case .book: [appleBooks, hardcover, openLibrary, plain(googleBooks), plain(litnet), plain(bookcover),
                      plain { await wikipedia($0, hint: "book") }]
         case .manhwa: [plain { await aniList($0, type: "MANGA") }, plain { await aniList($0, type: "MANGA", original: true) },

@@ -53,6 +53,9 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: "Dragon Lair"
+        # Must match the app's version, or App Store uploads are rejected.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
