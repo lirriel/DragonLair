@@ -65,6 +65,14 @@ final class ImportQueue {
     }
 
     var jobs: [Job] = []
+    /// Set by tests: replaces reading a screenshot, and skips the background task and the cover
+    /// search, backup and deletion that follow a run.
+    private let testProcess: (@MainActor (Job, ModelContext) async -> Job.State)?
+
+    init(testProcess: (@MainActor (Job, ModelContext) async -> Job.State)? = nil) {
+        self.testProcess = testProcess
+    }
+
     /// New screenshots found by watching, waiting for the user to pick which to import. Nothing
     /// is sent to the AI until they do.
     var pendingReview: [String] = []
@@ -133,13 +141,18 @@ final class ImportQueue {
 
     /// Screenshots in the range that were never scanned and aren't queued right now.
     func newScreenshotIDs(from start: Date, to end: Date = .distantFuture, context: ModelContext) -> [String] {
+        unhandled(ScreenshotLibrary.assetIDs(from: start, to: end), context: context)
+    }
+
+    /// The Photos screenshots that aren't queued, waiting for review, or handled before
+    /// (imported or skipped).
+    func unhandled(_ ids: [String], context: ModelContext) -> [String] {
         let queued = Set(jobs.compactMap { job -> String? in
             if case .asset(let id) = job.source { id } else { nil }
         })
         let scanned = Set(((try? context.fetch(FetchDescriptor<ScannedImage>())) ?? []).map(\.key))
         let pending = Set(pendingReview)
-        return ScreenshotLibrary.assetIDs(from: start, to: end)
-            .filter { !queued.contains($0) && !pending.contains($0) && !scanned.contains("asset:\($0)") }
+        return ids.filter { !queued.contains($0) && !pending.contains($0) && !scanned.contains("asset:\($0)") }
     }
 
     func importScreenshots(ids: [String], context: ModelContext) {
@@ -220,14 +233,15 @@ final class ImportQueue {
     }
 
     private func run(context: ModelContext) async {
-        background.begin(total: jobs.filter { $0.state == .waiting }.count)
-        defer { background.end() }
+        let isTest = testProcess != nil
+        if !isTest { background.begin(total: jobs.filter { $0.state == .waiting }.count) }
+        defer { if !isTest { background.end() } }
         // Stopping (by iOS or from the progress indicator) leaves the rest waiting for next time.
         // Jobs are found again by ID after every await: "Clear finished" can remove rows while
         // the AI is reading, which moves every row after them up.
         while !background.isCancelled, let next = jobs.first(where: { $0.state == .waiting }) {
             updateJob(next.id) { $0.state = .working }
-            let state = await process(next, context: context)
+            let state = if let testProcess { await testProcess(next, context) } else { await process(next, context: context) }
             updateJob(next.id) { $0.state = state }
             background.progress(remaining: jobs.filter { $0.state == .waiting }.count)
             switch Self.cleanup(after: state, of: next.source) {
@@ -236,6 +250,7 @@ final class ImportQueue {
             case .markScanned(let key): markScanned(key, context: context)
             }
         }
+        guard !isTest else { return }
         await covers.find(context: context)
         Backup.autoBackup(context: context)
         if AppSettings.deleteOriginalsAfterImport { await deleteOriginals() }
@@ -265,29 +280,12 @@ final class ImportQueue {
               let jpeg = await Task.detached(priority: .userInitiated, operation: { PreparedImage(screenshot)?.upload }).value else {
             throw AIError.badResponse("this bookmark has no screenshot")
         }
-        let items = try await AppSettings.client.extract(jpeg: jpeg).filter { !$0.title.isEmpty }
-        guard let item = items.first(where: { $0.category == bookmark.categoryRaw }) ?? items.first else {
+        let items = try await AppSettings.client.extract(jpeg: jpeg)
+        guard let item = ImportMerge.rereadItem(for: bookmark, from: items) else {
             throw AIError.badResponse("nothing recognisable was found on the screenshot")
         }
         uiLog.info("Re-read “\(bookmark.title, privacy: .private(mask: .hash))” as “\(item.title, privacy: .private(mask: .hash))”")
-        bookmark.categoryRaw = (BookmarkCategory(rawValue: item.category) ?? .other).rawValue
-        bookmark.title = item.title
-        bookmark.creator = item.creator
-        bookmark.year = item.year
-        bookmark.summary = item.summary
-        bookmark.url = item.url
-        bookmark.location = item.location
-        bookmark.tags = item.tags.map { $0.lowercased() }
-        bookmark.englishTitle = item.englishTitle
-        bookmark.englishCreator = item.englishCreator
-        bookmark.photoBox = item.photoBox
-        bookmark.originalTitle = ""
-        bookmark.originalCreator = ""
-        bookmark.englishChecked = true
-        bookmark.englishVerified = false
-        bookmark.preferEnglishNames()
-        bookmark.cover = nil
-        bookmark.coverLookedUp = false
+        ImportMerge.applyReread(item, to: bookmark)
         try context.save()
         await covers.find(context: context)
     }

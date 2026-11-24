@@ -528,7 +528,7 @@ enum CoverArt {
         return "us"
     }
 
-    private static let session: URLSession = {
+    static let session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         // Open Library and Wikipedia ask clients to identify themselves.
@@ -585,7 +585,8 @@ enum CoverArt {
     /// limit, the response is dropped, or with `truncate` its start is kept. Hosts on the local
     /// network are never contacted, not even through a redirect: their URLs come from
     /// screenshots and web pages.
-    private static func fetch(_ request: URLRequest, limit: Int, truncate: Bool = false) async -> (Data, HTTPURLResponse)? {
+    static func fetch(_ request: URLRequest, limit: Int, truncate: Bool = false,
+                      session: URLSession = session) async -> (Data, HTTPURLResponse)? {
         guard let url = request.url, isPublicWebURL(url),
               let (bytes, response) = try? await session.bytes(for: request, delegate: PublicRedirectsOnly.shared),
               let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }

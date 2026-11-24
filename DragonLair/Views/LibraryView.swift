@@ -199,10 +199,13 @@ struct LibraryView: View {
 }
 
 extension Bookmark {
+    /// Search: ignores case, accents and full-width letters, so "cafe" finds "Café".
     func matches(_ q: String) -> Bool {
-        [title, creator, englishTitle, englishCreator, originalTitle, originalCreator,
-         summary, location, notes, tags.joined(separator: " ")]
-            .contains { $0.localizedCaseInsensitiveContains(q) }
+        let query = q.trimmingCharacters(in: .whitespaces)
+        guard !query.isEmpty else { return true }
+        return [title, creator, englishTitle, englishCreator, originalTitle, originalCreator,
+                summary, location, notes, tags.joined(separator: " ")]
+            .contains { $0.range(of: query, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive]) != nil }
     }
 }
 

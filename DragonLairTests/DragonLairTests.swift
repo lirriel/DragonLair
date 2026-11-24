@@ -7,12 +7,13 @@ import UIKit
 
 @Suite("Matching bookmarks")
 struct MatchKeyTests {
-    @Test("Ignores case, accents, punctuation, a leading “the” and bracketed extras", arguments: [
+    @Test("Ignores case, accents, width, punctuation, a leading “the” and bracketed extras", arguments: [
         ("The Great Gatsby", "great gatsby"),
         ("Café Kitsuné", "cafe kitsune"),
         ("Past Lives (2023)", "Past Lives"),
         ("Solo Leveling [Official]", "solo-leveling"),
         ("Spider-Man: Homecoming", "spider man homecoming"),
+        ("Ｄｕｎｅ", "Dune"),
     ])
     func sameTitle(_ a: String, _ b: String) {
         #expect(Bookmark.matchKey(category: .book, title: a) == Bookmark.matchKey(category: .book, title: b))

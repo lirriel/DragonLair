@@ -64,6 +64,36 @@ enum ImportMerge {
         return result
     }
 
+    /// Which of the items a re-read screenshot shows replaces `bookmark`: the first named one
+    /// of the same category, else the first named one.
+    static func rereadItem(for bookmark: Bookmark, from items: [ExtractedItem]) -> ExtractedItem? {
+        let named = items.filter { !isBlank($0.title) }
+        return named.first { $0.category == bookmark.categoryRaw } ?? named.first
+    }
+
+    /// Replaces what the AI read before with `item`. What the user added (notes, status, dates)
+    /// stays, and the cover is searched for again under the new title.
+    static func applyReread(_ item: ExtractedItem, to bookmark: Bookmark) {
+        bookmark.categoryRaw = (BookmarkCategory(rawValue: item.category) ?? .other).rawValue
+        bookmark.title = item.title
+        bookmark.creator = item.creator
+        bookmark.year = item.year
+        bookmark.summary = item.summary
+        bookmark.url = item.url
+        bookmark.location = item.location
+        bookmark.tags = item.tags.map { $0.lowercased() }
+        bookmark.englishTitle = item.englishTitle
+        bookmark.englishCreator = item.englishCreator
+        bookmark.photoBox = item.photoBox
+        bookmark.originalTitle = ""
+        bookmark.originalCreator = ""
+        bookmark.englishChecked = true
+        bookmark.englishVerified = false
+        bookmark.preferEnglishNames()
+        bookmark.cover = nil
+        bookmark.coverLookedUp = false
+    }
+
     /// Whether a screenshot can be skipped without sending it to the AI, so it isn't paid for
     /// twice. Watching and period imports skip any screenshot read before. One the user picks or
     /// shares again is read again, unless a bookmark from it still exists (they may have deleted

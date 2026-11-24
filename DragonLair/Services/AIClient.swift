@@ -221,6 +221,10 @@ struct AIClient: Sendable {
     let provider: AIProviderKind
     let apiKey: String
     let model: String
+    /// Tests pass a session with a fake network.
+    var session: URLSession = .shared
+    /// How long to wait before each retry of a busy provider.
+    var retryWaits: [Duration] = [.seconds(3), .seconds(10), .seconds(30)]
 
     /// One request: instructions, the user's message, an optional screenshot, and the JSON
     /// shape the answer must follow.
@@ -490,11 +494,11 @@ struct AIClient: Sendable {
     /// Providers turn requests away or stall when overloaded; that usually passes within
     /// seconds, so busy responses and timeouts are retried a few times before giving up.
     private func sendRetrying(_ request: URLRequest, retrying: Bool) async throws -> (Data, Int) {
-        let waits: [Duration] = retrying ? [.seconds(3), .seconds(10), .seconds(30)] : []
+        let waits = retrying ? retryWaits : []
         for attempt in 0... {
             let isLast = attempt == waits.count
             do {
-                let (data, response) = try await URLSession.shared.data(for: request)
+                let (data, response) = try await session.data(for: request)
                 let status = (response as? HTTPURLResponse)?.statusCode ?? 0
                 if isLast || !(status == 429 || status >= 500) { return (data, status) }
                 importLog.notice("\(provider.rawValue, privacy: .public) busy (\(status)), retrying")

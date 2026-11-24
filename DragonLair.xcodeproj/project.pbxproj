@@ -12,6 +12,7 @@
 		29C94071686C1DDA592D9044 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8F6E454E86B4BD4F739D9E4 /* PrivacyInfo.xcprivacy */; };
 		2D6E7E1BEB0C1EA0F6D47399 /* ImportListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */; };
 		2ED526BB648411A79C769BB3 /* ScreenshotFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FA47656439F1D1CDFFD100 /* ScreenshotFolderView.swift */; };
+		3206C7950DD22B2E10DEB3AA /* BehaviourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E60C9C2113579700A5EBADA /* BehaviourTests.swift */; };
 		331E86EFECE02B147F7C38F6 /* ImportMerge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D513834846B44037B292F2A /* ImportMerge.swift */; };
 		3889AE7B363807D40A77DFEE /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1907C65A00D64654D7A73A3E /* ArchiveView.swift */; };
 		39380895A9AE474767032DCF /* AppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998A00423C76DC24F773C30A /* AppID.swift */; };
@@ -81,6 +82,7 @@
 		1907C65A00D64654D7A73A3E /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewScreenshotsView.swift; sourceTree = "<group>"; };
 		1E32381B801853BB4CA25EAA /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		1E60C9C2113579700A5EBADA /* BehaviourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehaviourTests.swift; sourceTree = "<group>"; };
 		23282DB67326D0A42E435E7A /* DragonLairApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragonLairApp.swift; sourceTree = "<group>"; };
 		2C669CCD163DCCA6304739DD /* DragonLair.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DragonLair.entitlements; sourceTree = "<group>"; };
 		360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		3F454214B24F085D3BAB3E36 /* DragonLairTests */ = {
 			isa = PBXGroup;
 			children = (
+				1E60C9C2113579700A5EBADA /* BehaviourTests.swift */,
 				E77976D7C3143883DF2CFF3F /* DragonLairTests.swift */,
 				F12A9A172F48804E9CE79E8C /* LibraryTests.swift */,
 			);
@@ -375,6 +378,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3206C7950DD22B2E10DEB3AA /* BehaviourTests.swift in Sources */,
 				E5723C6D3E486E23FE2840A0 /* DragonLairTests.swift in Sources */,
 				A7B609A2DD5DE10C52D9F6B8 /* LibraryTests.swift in Sources */,
 			);
