@@ -190,7 +190,7 @@ xcodegen generate
 
 Debug builds accept two launch arguments:
 
-- `-seedSamples` fills an empty library with a few sample bookmarks.
+- `-seedSamples` fills an empty library with a few made-up bookmarks with drawn covers. The README screenshots use it.
 - `-stubAI` answers imports with made-up bookmarks after a few seconds, so you can try importing without an API key or network.
 
 The app logs to the system log under the subsystem `com.lirriel.dragonlair`, with the categories `import`, `covers`, `photos`, `keychain` and `ui`. View them in Xcode's console or Console.app. Release builds hide titles and site addresses in these logs.
