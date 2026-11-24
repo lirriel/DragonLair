@@ -16,7 +16,7 @@ enum SharedInbox {
     }
 
     /// For apps that share an image only as data, not as a file.
-    static func add(_ data: Data) throws {
+    static func add(_ data: Data, to folder: URL? = folder) throws {
         guard let folder else { throw CocoaError(.fileNoSuchFile) }
         let name = "\(Int(Date().timeIntervalSince1970 * 1000))-\(UUID().uuidString).img"
         try data.write(to: folder.appendingPathComponent(name), options: .atomic)
@@ -24,7 +24,7 @@ enum SharedInbox {
 
     /// Copies a shared image file into the inbox without loading it into memory, which keeps
     /// the share extension inside its tight memory limit even for 50 large photos.
-    static func add(fileAt source: URL) throws {
+    static func add(fileAt source: URL, to folder: URL? = folder) throws {
         guard let folder else { throw CocoaError(.fileNoSuchFile) }
         // Timestamp prefix keeps files in the order they were shared. Copied under a temporary
         // name first, so the app never picks up a half-written file.
@@ -34,7 +34,8 @@ enum SharedInbox {
         try FileManager.default.moveItem(at: partial, to: folder.appendingPathComponent(name + ".img"))
     }
 
-    static func pending() -> [URL] {
+    /// Finished files, oldest first. Ones still being copied (`.partial`) are left alone.
+    static func pending(in folder: URL? = folder) -> [URL] {
         guard let folder,
               let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)
         else { return [] }

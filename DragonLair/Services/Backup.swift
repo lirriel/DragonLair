@@ -137,15 +137,7 @@ enum Backup {
                         try coordinatedWrite(data, to: images.appendingPathComponent(file))
                     }
                 }
-                return BackupFile.Record(
-                    category: b.categoryRaw, status: b.status.rawValue, title: b.title, creator: b.creator,
-                    year: b.year, summary: b.summary, url: b.url, location: b.location, tags: b.tags,
-                    notes: b.notes, createdAt: b.createdAt, archivedAt: b.archivedAt,
-                    seenAgainCount: b.seenAgainCount, lastSeenAgainAt: b.lastSeenAgainAt,
-                    sourceHash: b.sourceHash, sourceAssetID: b.sourceAssetID, image: name,
-                    englishTitle: b.englishTitle, englishCreator: b.englishCreator,
-                    originalTitle: b.originalTitle, originalCreator: b.originalCreator,
-                    englishChecked: b.englishChecked, englishVerified: b.englishVerified, photoBox: b.photoBox)
+                return record(for: b, image: name)
             }
 
             let backup = BackupFile(createdAt: .now, bookmarks: records, scannedKeys: scanned)
@@ -156,6 +148,19 @@ enum Backup {
         AppSettings.lastBackupError = nil
     }
 
+    /// Everything about a bookmark except its cover, which is found again after restoring.
+    static func record(for b: Bookmark, image: String?) -> BackupFile.Record {
+        BackupFile.Record(
+            category: b.categoryRaw, status: b.status.rawValue, title: b.title, creator: b.creator,
+            year: b.year, summary: b.summary, url: b.url, location: b.location, tags: b.tags,
+            notes: b.notes, createdAt: b.createdAt, archivedAt: b.archivedAt,
+            seenAgainCount: b.seenAgainCount, lastSeenAgainAt: b.lastSeenAgainAt,
+            sourceHash: b.sourceHash, sourceAssetID: b.sourceAssetID, image: image,
+            englishTitle: b.englishTitle, englishCreator: b.englishCreator,
+            originalTitle: b.originalTitle, originalCreator: b.originalCreator,
+            englishChecked: b.englishChecked, englishVerified: b.englishVerified, photoBox: b.photoBox)
+    }
+
     /// iCloud Drive shows files that aren't downloaded yet as ".name.icloud" placeholders.
     private static func exists(_ name: String, in folder: URL) -> Bool {
         let fm = FileManager.default
@@ -163,7 +168,7 @@ enum Backup {
             || fm.fileExists(atPath: folder.appendingPathComponent(".\(name).icloud").path)
     }
 
-    private static func pruneImages(in folder: URL, keeping used: Set<String>) {
+    static func pruneImages(in folder: URL, keeping used: Set<String>) {
         let files = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
         for file in files {
             let name = file.hasPrefix(".") && file.hasSuffix(".icloud")
@@ -188,46 +193,52 @@ enum Backup {
     /// are, so restoring twice never creates duplicates. Like imports, a bookmark counts as here
     /// when its shown or original-language title matches either title of one in the app.
     static func restore(_ backup: BackupFile, context: ModelContext) throws -> (added: Int, kept: Int) {
+        try withFolder { folder in
+            let images = folder.appendingPathComponent(imagesFolder, isDirectory: true)
+            return try restore(backup, context: context) { name in
+                let url = images.appendingPathComponent(name)
+                try? FileManager.default.startDownloadingUbiquitousItem(at: url)
+                return try? coordinatedRead(url)
+            }
+        }
+    }
+
+    /// `loadImage` reads a screenshot copy by its file name in the backup.
+    static func restore(_ backup: BackupFile, context: ModelContext,
+                        loadImage: (String) -> Data?) throws -> (added: Int, kept: Int) {
         var known = Set(try context.fetch(FetchDescriptor<Bookmark>()).flatMap { b in
             Bookmark.matchKeys(category: b.category, titles: [b.title, b.originalTitle])
         })
         let scanned = Set(try context.fetch(FetchDescriptor<ScannedImage>()).map(\.key))
         var added = 0, kept = 0
 
-        try withFolder { folder in
-            let images = folder.appendingPathComponent(imagesFolder, isDirectory: true)
-            for r in backup.bookmarks {
-                let category = BookmarkCategory(rawValue: r.category) ?? .other
-                let keys = Bookmark.matchKeys(category: category, titles: [r.title, r.originalTitle ?? ""])
-                guard known.isDisjoint(with: keys) else { kept += 1; continue }
-                known.formUnion(keys)
+        for r in backup.bookmarks {
+            let category = BookmarkCategory(rawValue: r.category) ?? .other
+            let keys = Bookmark.matchKeys(category: category, titles: [r.title, r.originalTitle ?? ""])
+            guard known.isDisjoint(with: keys) else { kept += 1; continue }
+            known.formUnion(keys)
 
-                let screenshot = r.image.flatMap { name -> Data? in
-                    let url = images.appendingPathComponent(name)
-                    try? FileManager.default.startDownloadingUbiquitousItem(at: url)
-                    return try? coordinatedRead(url)
-                }
-                let b = Bookmark(category: category, title: r.title, creator: r.creator, year: r.year,
-                                 summary: r.summary, url: r.url, location: r.location, tags: r.tags,
-                                 sourceHash: r.sourceHash, screenshot: screenshot)
-                // Set raw fields directly so the original dates are kept.
-                b.statusRaw = r.status
-                b.archivedAt = r.archivedAt
-                b.createdAt = r.createdAt
-                b.notes = r.notes
-                b.seenAgainCount = r.seenAgainCount
-                b.lastSeenAgainAt = r.lastSeenAgainAt
-                b.sourceAssetID = r.sourceAssetID
-                b.englishTitle = r.englishTitle ?? ""
-                b.englishCreator = r.englishCreator ?? ""
-                b.originalTitle = r.originalTitle ?? ""
-                b.originalCreator = r.originalCreator ?? ""
-                b.englishChecked = r.englishChecked ?? false
-                b.englishVerified = r.englishVerified ?? false
-                b.photoBox = r.photoBox ?? ""
-                context.insert(b)
-                added += 1
-            }
+            let screenshot = r.image.flatMap(loadImage)
+            let b = Bookmark(category: category, title: r.title, creator: r.creator, year: r.year,
+                             summary: r.summary, url: r.url, location: r.location, tags: r.tags,
+                             sourceHash: r.sourceHash, screenshot: screenshot)
+            // Set raw fields directly so the original dates are kept.
+            b.statusRaw = r.status
+            b.archivedAt = r.archivedAt
+            b.createdAt = r.createdAt
+            b.notes = r.notes
+            b.seenAgainCount = r.seenAgainCount
+            b.lastSeenAgainAt = r.lastSeenAgainAt
+            b.sourceAssetID = r.sourceAssetID
+            b.englishTitle = r.englishTitle ?? ""
+            b.englishCreator = r.englishCreator ?? ""
+            b.originalTitle = r.originalTitle ?? ""
+            b.originalCreator = r.originalCreator ?? ""
+            b.englishChecked = r.englishChecked ?? false
+            b.englishVerified = r.englishVerified ?? false
+            b.photoBox = r.photoBox ?? ""
+            context.insert(b)
+            added += 1
         }
         for key in backup.scannedKeys where !scanned.contains(key) {
             context.insert(ScannedImage(key: key))
@@ -238,14 +249,14 @@ enum Backup {
 
     // MARK: File helpers
 
-    private static var encoder: JSONEncoder {
+    static var encoder: JSONEncoder {
         let e = JSONEncoder()
         e.dateEncodingStrategy = .iso8601
         e.outputFormatting = [.prettyPrinted, .sortedKeys]
         return e
     }
 
-    private static var decoder: JSONDecoder {
+    static var decoder: JSONDecoder {
         let d = JSONDecoder()
         d.dateDecodingStrategy = .iso8601
         return d

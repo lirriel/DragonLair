@@ -583,10 +583,11 @@ enum CoverArt {
 
     /// GETs a URL, reading at most `limit` bytes so a huge response can't fill memory. Over the
     /// limit, the response is dropped, or with `truncate` its start is kept. Hosts on the local
-    /// network are never contacted: their URLs come from screenshots and web pages.
+    /// network are never contacted, not even through a redirect: their URLs come from
+    /// screenshots and web pages.
     private static func fetch(_ request: URLRequest, limit: Int, truncate: Bool = false) async -> (Data, HTTPURLResponse)? {
         guard let url = request.url, isPublicWebURL(url),
-              let (bytes, response) = try? await session.bytes(for: request),
+              let (bytes, response) = try? await session.bytes(for: request, delegate: PublicRedirectsOnly.shared),
               let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
         if !truncate && http.expectedContentLength > Int64(limit) {
             bytes.task.cancel()
@@ -606,6 +607,21 @@ enum CoverArt {
             return nil
         }
         return (data, http)
+    }
+
+    /// Follows a redirect only to an address `isPublicWebURL` allows. A public page could
+    /// otherwise send the request on to a router or printer on the user's network.
+    final class PublicRedirectsOnly: NSObject, URLSessionTaskDelegate, Sendable {
+        static let shared = PublicRedirectsOnly()
+
+        func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest) async -> URLRequest? {
+            guard let url = request.url, CoverArt.isPublicWebURL(url) else {
+                log.notice("Refused a redirect to a local address")
+                return nil
+            }
+            return request
+        }
     }
 
     /// HTTPS (or HTTP, which App Transport Security then refuses) to a public host name: not

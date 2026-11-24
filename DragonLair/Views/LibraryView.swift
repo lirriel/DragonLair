@@ -62,7 +62,7 @@ struct LibraryView: View {
                 if !importQueue.jobs.isEmpty {
                     Section { ImportBanner { showImports = true } }
                 }
-                if let progress = importQueue.coverProgress, progress.total > 3 {
+                if let progress = importQueue.covers.progress, progress.total > 3 {
                     Section {
                         HStack(spacing: 12) {
                             ProgressView()
@@ -144,7 +144,7 @@ struct LibraryView: View {
                     importQueue.refreshWatching(context: context)
                     importQueue.resume(context: context)
                     Task { await importQueue.deleteOriginalsIfPending() }
-                    Task { await importQueue.findCovers(context: context) }
+                    Task { await importQueue.covers.find(context: context) }
                 case .background:
                     // Catches edits and tracker changes made since the last import.
                     Backup.autoBackup(context: context)
@@ -156,7 +156,7 @@ struct LibraryView: View {
             .photosPicker(isPresented: $showPicker, selection: $picked, maxSelectionCount: 50,
                           matching: .screenshots, photoLibrary: .shared())
             .sheet(isPresented: $showSettings, onDismiss: {
-                Task { await importQueue.findCovers(context: context) }
+                Task { await importQueue.covers.find(context: context) }
             }) { SettingsView() }
             .sheet(isPresented: $showImports) { ImportListView() }
             .sheet(isPresented: $showReview) { ReviewScreenshotsView() }

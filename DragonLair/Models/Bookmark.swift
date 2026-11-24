@@ -229,6 +229,12 @@ final class Bookmark {
             .components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { !$0.isEmpty }
         let trimmed = words.first == "the" ? Array(words.dropFirst()) : words
+        // Titles with nothing left after that ("★★★", "(Untitled)", "The") are compared as
+        // written, or they'd all count as the same thing.
+        guard !trimmed.isEmpty else {
+            let folded = title.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            return "\(category.rawValue)|=\(folded.trimmingCharacters(in: .whitespacesAndNewlines))"
+        }
         return "\(category.rawValue)|\(trimmed.joined(separator: " "))"
     }
 

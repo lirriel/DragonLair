@@ -73,12 +73,9 @@ final class ImportQueue {
     /// confirmation; it runs the next time the app is opened.
     private var deletionPending = false
     private var isRunning = false
-    private var isFindingCovers = false
     private let watcher = ScreenshotWatcher()
     private let background = BackgroundImport()
-    private let coverBackground = BackgroundImport(title: "Finding covers", noun: "covers")
-    /// Set while a cover search over many bookmarks runs, for the progress row in the library.
-    private(set) var coverProgress: (done: Int, total: Int)?
+    let covers = CoverFinder()
 
     var isBusy: Bool { jobs.contains { $0.state == .waiting || $0.state == .working } }
     var finishedCount: Int { jobs.filter { $0.state != .waiting && $0.state != .working }.count }
@@ -233,17 +230,31 @@ final class ImportQueue {
             let state = await process(next, context: context)
             updateJob(next.id) { $0.state = state }
             background.progress(remaining: jobs.filter { $0.state == .waiting }.count)
-            // Failed images aren't marked as handled, so they can be retried later.
-            if case .failed = state { continue }
-            switch next.source {
-            case .inbox(let url): SharedInbox.remove(url)
-            case .asset(let id): markScanned("asset:\(id)", context: context)
-            case .picker: break
+            switch Self.cleanup(after: state, of: next.source) {
+            case .keep: break
+            case .removeSharedFile(let url): SharedInbox.remove(url)
+            case .markScanned(let key): markScanned(key, context: context)
             }
         }
-        await findCovers(context: context)
+        await covers.find(context: context)
         Backup.autoBackup(context: context)
         if AppSettings.deleteOriginalsAfterImport { await deleteOriginals() }
+    }
+
+    enum Cleanup: Equatable {
+        case keep, removeSharedFile(URL), markScanned(String)
+    }
+
+    /// What happens to a screenshot's source once it's processed. A failed one is kept and not
+    /// marked as handled, so it's tried again later: a shared file stays in the inbox, and a
+    /// screenshot from Photos is offered again. Picked photos stay in Photos either way.
+    nonisolated static func cleanup(after state: Job.State, of source: Job.Source) -> Cleanup {
+        if case .failed = state { return .keep }
+        return switch source {
+        case .inbox(let url): .removeSharedFile(url)
+        case .asset(let id): .markScanned("asset:\(id)")
+        case .picker: .keep
+        }
     }
 
     /// Sends a bookmark's stored screenshot to the AI again with the current instructions and
@@ -278,181 +289,12 @@ final class ImportQueue {
         bookmark.cover = nil
         bookmark.coverLookedUp = false
         try context.save()
-        await findCovers(context: context)
-    }
-
-    /// Asks the AI, text only and in one request, for English names of bookmarks saved
-    /// before imports returned them. Ones whose cover search came up empty get another try.
-    private func addEnglishNames(context: ModelContext) async {
-        // Earlier answers sometimes listed alternatives ("A / B / C"); undo any switch to such a
-        // list and ask again for one title.
-        for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-        where bookmark.englishTitle.contains(" / ") {
-            if !bookmark.originalTitle.isEmpty, bookmark.title == bookmark.englishTitle {
-                bookmark.title = bookmark.originalTitle
-                bookmark.creator = bookmark.originalCreator
-                bookmark.originalTitle = ""
-                bookmark.originalCreator = ""
-            }
-            bookmark.englishTitle = ""
-            bookmark.englishChecked = false
-        }
-        // Manhwa and anime: take the official English title from AniList when it has the series.
-        for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-        where !bookmark.englishVerified && (bookmark.category == .manhwa || bookmark.category == .movie)
-            && (bookmark.needsEnglishNames || !bookmark.originalTitle.isEmpty) {
-            let original = bookmark.originalTitle.isEmpty ? bookmark.title : bookmark.originalTitle
-            if let english = await CoverArt.aniListEnglishTitle(original: original, category: bookmark.category) {
-                if !bookmark.originalTitle.isEmpty, bookmark.title == bookmark.englishTitle { bookmark.title = english }
-                if bookmark.englishTitle != english, bookmark.cover == nil { bookmark.coverLookedUp = false }
-                bookmark.englishTitle = english
-                bookmark.englishChecked = true
-                bookmark.preferEnglishNames()
-            }
-            bookmark.englishVerified = true
-        }
-        try? context.save()
-        let unchecked = FetchDescriptor<Bookmark>(predicate: #Predicate { !$0.englishChecked })
-        let bookmarks = (try? context.fetch(unchecked)) ?? []
-        for bookmark in bookmarks where !bookmark.needsEnglishNames { bookmark.englishChecked = true }
-        let foreign = Array(bookmarks.filter(\.needsEnglishNames).prefix(50))
-        guard !foreign.isEmpty else { return }
-        do {
-            let answers = try await AppSettings.client.translate(foreign.enumerated().map {
-                (id: $0.offset, category: $0.element.categoryRaw, title: $0.element.title, creator: $0.element.creator)
-            })
-            for answer in answers where foreign.indices.contains(answer.id) {
-                let bookmark = foreign[answer.id]
-                bookmark.englishTitle = answer.englishTitle
-                bookmark.englishCreator = answer.englishCreator
-                bookmark.preferEnglishNames()
-                if bookmark.cover == nil && !answer.englishTitle.isEmpty { bookmark.coverLookedUp = false }
-            }
-            foreign.forEach { $0.englishChecked = true }
-            try? context.save()
-        } catch {
-            // No key or the provider is busy: try again next time.
-            importLog.error("Translating titles failed: \(error, privacy: .public)")
-        }
-    }
-
-    /// Looks up official artwork for bookmarks that haven't been searched yet: new imports,
-    /// and anything saved before covers existed or restored from a backup.
-    func findCovers(context: ModelContext) async {
-        guard !isFindingCovers else { return }
-        isFindingCovers = true
-        defer { isFindingCovers = false }
-        // When sources are added, bookmarks that found nothing (or no author) before get another try.
-        if AppSettings.coverSourcesVersion < 13 {
-            // Guessed crops of comment screenshots and café logos are gone; search those again.
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-            where bookmark.category == .place || bookmark.category == .product {
-                bookmark.cover = nil
-                bookmark.coverLookedUp = false
-            }
-        }
-        if AppSettings.coverSourcesVersion < 12 {
-            // Look Around street views (parked vans, a Maps watermark) gave way to crops of the
-            // screenshot itself; products gained the same fallback.
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-            where bookmark.category == .place || bookmark.category == .product {
-                bookmark.cover = nil
-                bookmark.coverLookedUp = false
-            }
-        }
-        if AppSettings.coverSourcesVersion < 11 {
-            // Requested re-run with the current sources (TMDB, Apple Maps, product databases).
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-            where [.movie, .product, .place].contains(bookmark.category) {
-                bookmark.cover = nil
-                bookmark.coverLookedUp = false
-            }
-            uiLog.info("Re-running cover search for movies, products and places")
-        }
-        if AppSettings.coverSourcesVersion < 10 {
-            // Places used to get only loosely matched Wikipedia photos; Apple Maps does better.
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? [] where bookmark.category == .place {
-                bookmark.cover = nil
-                bookmark.coverLookedUp = false
-            }
-        }
-        if AppSettings.coverSourcesVersion < 9 {
-            // Before year checks, a film could get the poster of an older series with the same
-            // name (Fortitude 2026 → Fortitude 2015), and loose title matching let in pages like
-            // "Operation Fortitude", or a village photo for the series Crookhaven. Search those
-            // again from scratch.
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-            where bookmark.category == .movie {
-                bookmark.cover = nil
-            }
-        }
-        if AppSettings.coverSourcesVersion < CoverArt.sourcesVersion {
-            // Filtered here rather than in a predicate: covers are stored outside the database.
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-            where bookmark.cover == nil || bookmark.creator.isEmpty {
-                bookmark.coverLookedUp = false
-            }
-            AppSettings.coverSourcesVersion = CoverArt.sourcesVersion
-        }
-        // A cover source was just added in Settings: it may have what the others didn't.
-        if AppSettings.retryMissingCovers {
-            AppSettings.retryMissingCovers = false
-            for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? [] where bookmark.cover == nil {
-                bookmark.coverLookedUp = false
-            }
-        }
-        // Covers that weren't anywhere a week ago may be now, e.g. for books not yet released.
-        let weekAgo = Date.now.addingTimeInterval(-7 * 24 * 3600)
-        for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? []
-        where bookmark.coverLookedUp && bookmark.cover == nil && (bookmark.coverLookedUpAt ?? .distantPast) < weekAgo {
-            bookmark.coverLookedUp = false
-        }
-        await addEnglishNames(context: context)
-        // Bookmarks saved before English names were shown for non-Cyrillic titles.
-        for bookmark in (try? context.fetch(FetchDescriptor<Bookmark>())) ?? [] { bookmark.preferEnglishNames() }
-        let pending = (try? context.fetch(FetchDescriptor<Bookmark>(predicate: #Predicate { !$0.coverLookedUp }))) ?? []
-        guard !pending.isEmpty else { return }
-        uiLog.info("Finding covers for \(pending.count) bookmark(s)")
-        // Keeps going (with iOS's progress indicator) if the user leaves the app mid-run.
-        let inBackground = pending.count > 3
-        if inBackground { coverBackground.begin(total: pending.count) }
-        coverProgress = (0, pending.count)
-        defer {
-            coverProgress = nil
-            if inBackground { coverBackground.end() }
-        }
-        // A few at a time: each search waits on several slow catalogues, one after another.
-        await withTaskGroup(of: (Int, CoverArt.Found?).self) { group in
-            var next = 0
-            func startNext() {
-                guard next < pending.count else { return }
-                let index = next, query = pending[index].coverQuery
-                next += 1
-                group.addTask { (index, await CoverArt.find(query)) }
-            }
-            for _ in 0..<4 { startNext() }
-            var done = 0
-            for await (index, found) in group {
-                pending[index].apply(found)
-                done += 1
-                coverProgress = (done, pending.count)
-                if inBackground { coverBackground.progress(remaining: pending.count - done) }
-                if done % 5 == 0 || done == pending.count { try? context.save() }
-                // Stopped by iOS or from its progress indicator: the rest wait for next time.
-                if !coverBackground.isCancelled { startNext() }
-            }
-        }
-        try? context.save()
-        uiLog.info("Cover search finished")
+        await covers.find(context: context)
     }
 
     private func markScanned(_ key: String, context: ModelContext) {
         context.insert(ScannedImage(key: key))
         try? context.save()
-    }
-
-    private func isScanned(_ key: String, context: ModelContext) -> Bool {
-        ((try? context.fetchCount(FetchDescriptor<ScannedImage>(predicate: #Predicate { $0.key == key }))) ?? 0) > 0
     }
 
     private func loadData(_ job: Job) async throws -> Data? {
@@ -484,80 +326,27 @@ final class ImportQueue {
             }
 
             let hash = prepared.hash
-            let existing = FetchDescriptor<Bookmark>(predicate: #Predicate { $0.sourceHash == hash })
-            let hasBookmark = (try? context.fetchCount(existing)) ?? 0 > 0
-            // Screenshots read before are skipped by watching and period imports, so they aren't
-            // paid for twice. One the user picks or shares again is read again unless a bookmark
-            // from it still exists (e.g. they deleted a wrong import and want another try).
             let isAutomatic = if case .asset = job.source { true } else { false }
-            if hasBookmark || (isAutomatic && !job.forceRead && isScanned("hash:\(hash)", context: context)) {
+            if ImportMerge.canSkip(hash: hash, isAutomatic: isAutomatic, forceRead: job.forceRead, context: context) {
                 return .skipped
             }
 
             guard let upload = prepared.upload else { return .failed("Couldn't encode the image") }
             importLog.info("Sending \(upload.count / 1024) KB to \(AppSettings.provider.rawValue, privacy: .public)")
             let started = Date.now
-            // An item the AI recognised but couldn't name is still worth keeping; the user can
-            // rename it once they find out what it is.
-            let items = try await AppSettings.client.extract(jpeg: upload).map { item in
-                guard item.title.trimmingCharacters(in: .whitespaces).isEmpty,
-                      !(item.summary + item.creator + item.url).trimmingCharacters(in: .whitespaces).isEmpty else { return item }
-                var named = item
-                let category = BookmarkCategory(rawValue: item.category) ?? .other
-                // Dated, so two unnamed finds aren't taken for the same thing.
-                named.title = "Unnamed \(category == .movie ? "movie or show" : category.rawValue) "
-                    + "(\(Date.now.formatted(date: .abbreviated, time: .shortened)))"
-                return named
-            }
+            let items = try await AppSettings.client.extract(jpeg: upload)
             importLog.info("Got \(items.count) items in \(Int(Date.now.timeIntervalSince(started)))s")
 
-            // Everything ever saved, archived included, so old items are recognised.
-            // Keyed by both the shown and the original-language title, so a screenshot in
-            // either language is recognised.
-            var known: [String: Bookmark] = [:]
-            for bookmark in try context.fetch(FetchDescriptor<Bookmark>()) {
-                for title in [bookmark.title, bookmark.originalTitle] where !title.isEmpty {
-                    let key = Bookmark.matchKey(category: bookmark.category, title: title)
-                    if known[key] == nil { known[key] = bookmark }
-                }
-            }
-            var added = 0
-            var notes: [String] = []
-
-            for item in items where !item.title.trimmingCharacters(in: .whitespaces).isEmpty {
-                let category = BookmarkCategory(rawValue: item.category) ?? .other
-                let key = Bookmark.matchKey(category: category, title: item.title)
-                let englishKey = Bookmark.matchKey(category: category, title: item.englishTitle)
-                if let existing = known[key] ?? (item.englishTitle.isEmpty ? nil : known[englishKey]) {
-                    existing.seenAgainCount += 1
-                    existing.lastSeenAgainAt = .now
-                    notes.append(existing.duplicateNote)
-                    continue
-                }
-                let bookmark = Bookmark(
-                    category: category,
-                    title: item.title, creator: item.creator, year: item.year,
-                    summary: item.summary, url: item.url, location: item.location,
-                    tags: item.tags.map { $0.lowercased() }, sourceHash: hash, screenshot: preview)
-                bookmark.sourceAssetID = job.assetID ?? ""
-                bookmark.englishTitle = item.englishTitle
-                bookmark.englishCreator = item.englishCreator
-                bookmark.photoBox = item.photoBox
-                bookmark.englishChecked = true
-                bookmark.preferEnglishNames()
-                context.insert(bookmark)
-                known[key] = bookmark
-                if !item.englishTitle.isEmpty { known[englishKey] = bookmark }
-                added += 1
-            }
+            let result = try ImportMerge.merge(items, hash: hash, screenshot: preview, assetID: job.assetID,
+                                               context: context)
             context.insert(ScannedImage(key: "hash:\(hash)"))
             try context.save()
-            if added == 0 && notes.isEmpty {
+            if result.added == 0 && result.notes.isEmpty {
                 importLog.info("Nothing found (the AI returned \(items.count) item(s))")
                 updateJob(job.id) { $0.imageData = data }
                 return .nothingFound
             }
-            return .done(added: added, notes: notes)
+            return .done(added: result.added, notes: result.notes)
         } catch {
             importLog.error("Import failed: \(error, privacy: .public)")
             return .failed(error.localizedDescription)

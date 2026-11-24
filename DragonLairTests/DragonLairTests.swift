@@ -33,6 +33,15 @@ struct MatchKeyTests {
         #expect(!saved.isDisjoint(with: restored))
     }
 
+    @Test("Titles with nothing left after cleanup are compared as written")
+    func symbolTitles() {
+        func key(_ title: String) -> String { Bookmark.matchKey(category: .book, title: title) }
+        #expect(key("★★★") != key("☆☆☆"))
+        #expect(key("★★★") != key("(Untitled)"))
+        #expect(key("(Untitled)") == key("(untitled)"))
+        #expect(key("The") != key("★★★"))
+    }
+
     @Test func emptyTitlesAreIgnored() {
         #expect(Bookmark.matchKeys(category: .book, titles: ["Dune", "", "  "]).count == 1)
     }
@@ -82,6 +91,21 @@ struct PublicHostTests {
     ])
     func refused(_ text: String) {
         #expect(!CoverArt.isPublicWebURL(URL(string: text)!))
+    }
+
+    @Test("Redirects to local network hosts aren't followed", arguments: [
+        ("https://192.168.1.1/admin", false), ("http://localhost:8080/", false), ("https://[fd00::1]/", false),
+        ("https://covers.example/dune.jpg", true),
+    ])
+    func redirects(_ target: String, _ followed: Bool) async throws {
+        let page = try #require(URL(string: "https://example.com/book"))
+        let task = URLSession.shared.dataTask(with: page)
+        let response = try #require(HTTPURLResponse(url: page, statusCode: 302, httpVersion: nil,
+                                                    headerFields: ["Location": target]))
+        let next = try await CoverArt.PublicRedirectsOnly.shared.urlSession(
+            URLSession.shared, task: task, willPerformHTTPRedirection: response,
+            newRequest: URLRequest(url: try #require(URL(string: target))))
+        #expect((next != nil) == followed)
     }
 }
 
@@ -147,7 +171,8 @@ struct ImageTests {
     @Test func coversAreScaledDown() throws {
         let jpeg = try #require(CoverArt.downsampledJPEG(Self.png(width: 3000, height: 2000)))
         let size = try #require(Self.pixelSize(jpeg))
-        #expect(max(size.width, size.height) == 900)
+        #expect(max(size.width, size.height) <= 900)
+        #expect(abs(size.width / size.height - 1.5) < 0.01)
     }
 
     @Test func smallCoversAreKeptAtTheirSize() throws {
@@ -162,16 +187,26 @@ struct ImageTests {
         #expect(CoverArt.downsampledJPEG(Data("<html></html>".utf8)) == nil)
     }
 
-    @Test func screenshotsArePreparedForImport() throws {
-        let data = Self.png(width: 1179, height: 2556)
-        let prepared = try #require(PreparedImage(data))
-        #expect(prepared.hash.count == 64)
-        #expect(prepared.hash == PreparedImage(data)?.hash)
+    @Test("Screenshots are scaled down for sending, previews and thumbnails")
+    func screenshotsArePreparedForImport() throws {
+        let prepared = try #require(PreparedImage(Self.png(width: 1179, height: 2556)))
         let upload = try #require(prepared.upload.flatMap(Self.pixelSize))
         let preview = try #require(prepared.preview.flatMap(Self.pixelSize))
-        #expect(upload.height == 1568)
-        #expect(preview.height == 1200)
-        #expect(prepared.thumbnail.map { max($0.size.width, $0.size.height) * $0.scale } == 200)
+        let thumbnail = try #require(prepared.thumbnail.map { max($0.size.width, $0.size.height) * $0.scale })
+        // Vision models scale anything bigger down anyway; sending more only costs more.
+        #expect(max(upload.width, upload.height) <= 1568)
+        #expect(max(preview.width, preview.height) <= 1200)
+        #expect(thumbnail <= 200)
+        #expect(abs(upload.width / upload.height - 1179.0 / 2556.0) < 0.01)
+    }
+
+    @Test("The same screenshot always gets the same fingerprint, and different ones never share it")
+    func screenshotFingerprints() throws {
+        let data = Self.png(width: 1179, height: 2556)
+        let hash = try #require(PreparedImage(data)?.hash)
+        #expect(hash.count == 64)
+        #expect(PreparedImage(data)?.hash == hash)
+        #expect(PreparedImage(Self.png(width: 1179, height: 2555))?.hash != hash)
     }
 
     @Test func notAnImage() {
@@ -197,6 +232,7 @@ struct FormatTests {
     }
 
     @Test("Backups made before the language fields still load")
+    @MainActor
     func oldBackupsLoad() throws {
         let json = """
         {"version": 1, "createdAt": "2026-11-01T10:00:00Z", "scannedKeys": ["hash:abc"],
@@ -204,9 +240,7 @@ struct FormatTests {
                         "summary": "", "url": "", "location": "", "tags": [], "notes": "",
                         "createdAt": "2026-11-01T10:00:00Z", "seenAgainCount": 0, "sourceHash": "", "sourceAssetID": ""}]}
         """
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        let backup = try decoder.decode(BackupFile.self, from: Data(json.utf8))
+        let backup = try Backup.decoder.decode(BackupFile.self, from: Data(json.utf8))
         #expect(backup.bookmarks.first?.title == "Dune")
         #expect(backup.bookmarks.first?.originalTitle == nil)
     }

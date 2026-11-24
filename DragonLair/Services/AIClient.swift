@@ -19,7 +19,7 @@ struct ExtractedItem: Codable, Sendable {
     var photoBox: String
 }
 
-private struct ExtractionResult: Codable {
+struct ExtractionResult: Codable {
     var items: [ExtractedItem]
 }
 
@@ -30,7 +30,7 @@ struct Translation: Codable, Sendable {
     var englishCreator: String
 }
 
-private struct TranslationResult: Codable {
+struct TranslationResult: Codable {
     var items: [Translation]
 }
 
@@ -233,7 +233,7 @@ struct AIClient: Sendable {
 
     func extract(jpeg: Data) async throws -> [ExtractedItem] {
         let ask = Ask(system: Prompt.system, user: Prompt.user, jpeg: jpeg, schema: Prompt.schema)
-        return try decode(ExtractionResult.self, from: await call(ask)).items
+        return try Self.decode(ExtractionResult.self, from: await call(ask)).items
     }
 
     /// Text only: English names for titles saved in another language.
@@ -241,7 +241,7 @@ struct AIClient: Sendable {
         let list = items.map { ["id": $0.id, "category": $0.category, "title": $0.title, "creator": $0.creator] }
         let json = String(decoding: try JSONSerialization.data(withJSONObject: list), as: UTF8.self)
         let ask = Ask(system: Prompt.translateSystem, user: json, schema: Prompt.translateSchema)
-        return try decode(TranslationResult.self, from: await call(ask)).items
+        return try Self.decode(TranslationResult.self, from: await call(ask)).items
     }
 
     /// Gemini only: searches the web (Google Search grounding) for pages showing the cover of
@@ -270,7 +270,12 @@ struct AIClient: Sendable {
             "generationConfig": ["thinkingConfig": ["thinkingLevel": "low"]],
         ]
         // No retries: the usual failure here is the search quota, which waiting seconds won't fix.
-        let response = try await send(request, body: body, retrying: false)
+        return Self.coverPages(fromGemini: try await send(request, body: body, retrying: false))
+    }
+
+    /// The page links in a grounded Gemini answer: the ones it named first, then the pages the
+    /// search used.
+    static func coverPages(fromGemini response: [String: Any]) -> [URL] {
         let candidate = (response["candidates"] as? [[String: Any]])?.first
         let parts = (candidate?["content"] as? [String: Any])?["parts"] as? [[String: Any]] ?? []
         let text = parts.filter { $0["thought"] as? Bool != true }.compactMap { $0["text"] as? String }.joined()
@@ -309,7 +314,7 @@ struct AIClient: Sendable {
     }
     #endif
 
-    private func decode<T: Decodable>(_ type: T.Type, from json: String) throws -> T {
+    static func decode<T: Decodable>(_ type: T.Type, from json: String) throws -> T {
         do {
             return try JSONDecoder().decode(type, from: Data(json.utf8))
         } catch {
@@ -342,8 +347,11 @@ struct AIClient: Sendable {
                     + [["type": "text", "text": ask.user]],
             ]],
         ]
-        let response = try await send(request, body: body)
+        return try Self.text(fromClaude: try await send(request, body: body))
+    }
 
+    /// The JSON answer in a Messages API response.
+    static func text(fromClaude response: [String: Any]) throws -> String {
         if response["stop_reason"] as? String == "refusal" {
             let details = response["stop_details"] as? [String: Any]
             throw AIError.refused(details?["explanation"] as? String ?? "")
@@ -378,8 +386,11 @@ struct AIClient: Sendable {
                 "json_schema": ["name": "result", "strict": true, "schema": ask.schema],
             ],
         ]
-        let response = try await send(request, body: body)
+        return try Self.text(fromOpenAI: try await send(request, body: body))
+    }
 
+    /// The JSON answer in a Chat Completions response.
+    static func text(fromOpenAI response: [String: Any]) throws -> String {
         let message = (response["choices"] as? [[String: Any]])?.first?["message"] as? [String: Any]
         if let refusal = message?["refusal"] as? String { throw AIError.refused(refusal) }
         guard let text = message?["content"] as? String else { throw AIError.badResponse("no message content") }
@@ -435,8 +446,11 @@ struct AIClient: Sendable {
                 "thinkingConfig": ["thinkingLevel": "low"],
             ],
         ]
-        let response = try await send(request, body: body, retrying: retrying)
+        return try Self.text(fromGemini: try await send(request, body: body, retrying: retrying))
+    }
 
+    /// The JSON answer in a generateContent response.
+    static func text(fromGemini response: [String: Any]) throws -> String {
         if let blocked = (response["promptFeedback"] as? [String: Any])?["blockReason"] as? String {
             throw AIError.refused(blocked)
         }
