@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/iOS-18%2B-black?logo=apple" alt="iOS 18+">
-  <img src="https://img.shields.io/badge/Swift-5-F05138?logo=swift&logoColor=white" alt="Swift 5">
+  <img src="https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white" alt="Swift 6">
   <img src="https://img.shields.io/badge/SwiftUI-SwiftData-0A84FF" alt="SwiftUI + SwiftData">
   <img src="https://img.shields.io/badge/backend-none-2ea44f" alt="No backend">
 </p>
