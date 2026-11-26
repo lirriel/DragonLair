@@ -219,8 +219,19 @@ final class ImportQueue {
         start(context: context)
     }
 
+    /// Screenshots queued before an API key was added. They stay waiting, not failed, and run
+    /// on the next `resume` once there's a key.
+    var waitingForKey: Int {
+        guard testProcess == nil, !AppSettings.hasAPIKey else { return 0 }
+        return jobs.filter { $0.state == .waiting }.count
+    }
+
     private func start(context: ModelContext) {
         guard !isRunning else { return }
+        guard testProcess != nil || AppSettings.hasAPIKey else {
+            importLog.info("No API key yet; screenshots wait until one is added")
+            return
+        }
         isRunning = true
         Task {
             await run(context: context)

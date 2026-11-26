@@ -19,6 +19,12 @@ struct LibraryView: View {
     @State private var showReview = false
     @State private var path = NavigationPath()
     @State private var quickActions = QuickActions()
+    /// Whether imports can run. Re-read when the app comes back and after Settings or onboarding.
+    @State private var hasKey = AppSettings.hasAPIKey
+    @State private var showOnboarding = false
+    @State private var onboardingStart: OnboardingView.Step = .welcome
+    @State private var onboardingExit: OnboardingView.Exit?
+    @AppStorage("swipeTipDone") private var swipeTipDone = false
 
     private enum Route: Hashable { case archive, originals }
     /// Saved screenshots still in Photos; offered for clean-up when there are any.
@@ -59,7 +65,9 @@ struct LibraryView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                if !importQueue.jobs.isEmpty {
+                if !hasKey && importQueue.waitingForKey > 0 {
+                    Section { waitingForKeyRow }
+                } else if !importQueue.jobs.isEmpty {
                     Section { ImportBanner { showImports = true } }
                 }
                 if let progress = importQueue.covers.progress, progress.total > 3 {
@@ -90,6 +98,9 @@ struct LibraryView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                }
+                if !swipeTipDone && !filtered.isEmpty && search.isEmpty {
+                    Section { swipeTip }
                 }
                 ForEach(filtered) { bookmark in
                     NavigationLink(value: bookmark) { BookmarkRow(bookmark: bookmark) }
@@ -140,6 +151,7 @@ struct LibraryView: View {
             .onChange(of: scenePhase, initial: true) { _, phase in
                 switch phase {
                 case .active:
+                    hasKey = AppSettings.hasAPIKey
                     importQueue.importInbox(context: context)
                     importQueue.refreshWatching(context: context)
                     importQueue.resume(context: context)
@@ -156,8 +168,32 @@ struct LibraryView: View {
             .photosPicker(isPresented: $showPicker, selection: $picked, maxSelectionCount: 50,
                           matching: .screenshots, photoLibrary: .shared())
             .sheet(isPresented: $showSettings, onDismiss: {
+                keyMayHaveChanged()
                 Task { await importQueue.covers.find(context: context) }
             }) { SettingsView() }
+            .fullScreenCover(isPresented: $showOnboarding, onDismiss: afterOnboarding) {
+                OnboardingView(startAt: onboardingStart) { exit in
+                    onboardingExit = exit
+                    showOnboarding = false
+                }
+            }
+            .onAppear {
+                #if DEBUG
+                // With -stubAI there's always a "key", so this is the way to see onboarding.
+                if ProcessInfo.processInfo.arguments.contains("-showOnboarding") {
+                    onboardingStart = .welcome
+                    showOnboarding = true
+                    return
+                }
+                #endif
+                guard !AppSettings.onboardingDone, bookmarks.isEmpty, !AppSettings.hasAPIKey else { return }
+                #if DEBUG
+                // README screenshots and UI checks start from the sample library.
+                if ProcessInfo.processInfo.arguments.contains("-seedSamples") { return }
+                #endif
+                onboardingStart = .welcome
+                showOnboarding = true
+            }
             .sheet(isPresented: $showImports) { ImportListView() }
             .sheet(isPresented: $showReview) { ReviewScreenshotsView() }
             .sheet(isPresented: $showFolder) { ScreenshotFolderView() }
@@ -178,7 +214,78 @@ struct LibraryView: View {
         }
     }
 
-    private var emptyState: some View {
+    private func openKeySetup() {
+        onboardingStart = .key
+        showOnboarding = true
+    }
+
+    /// Picks up screenshots that were waiting for a key.
+    private func keyMayHaveChanged() {
+        hasKey = AppSettings.hasAPIKey
+        guard hasKey else { return }
+        importQueue.importInbox(context: context)
+        importQueue.resume(context: context)
+    }
+
+    private func afterOnboarding() {
+        keyMayHaveChanged()
+        switch onboardingExit {
+        case .pick: showPicker = true
+        case .review: showReview = true
+        case .library, nil: break
+        }
+        onboardingExit = nil
+    }
+
+    private var waitingForKeyRow: some View {
+        Button(action: openKeySetup) {
+            HStack(spacing: 12) {
+                Image(systemName: "clock").foregroundStyle(.orange)
+                VStack(alignment: .leading, spacing: 2) {
+                    let count = importQueue.waitingForKey
+                    Text("\(count) screenshot\(count == 1 ? "" : "s") waiting")
+                        .font(.subheadline.weight(.semibold))
+                    Text("They'll be read once you add an AI key").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Shown until dismissed, above the first bookmarks.
+    private var swipeTip: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "arrow.left.arrow.right").foregroundStyle(.tint).accessibilityHidden(true)
+            Text("Swipe right when you start something, left if you change your mind. Long-press for more.")
+                .font(.subheadline)
+            Spacer(minLength: 0)
+            Button { withAnimation { swipeTipDone = true } } label: {
+                Image(systemName: "xmark").font(.footnote.weight(.semibold)).frame(width: 32, height: 32)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss tip")
+        }
+        .listRowBackground(Color.accentColor.opacity(0.12))
+    }
+
+    @ViewBuilder private var emptyState: some View {
+        if !hasKey {
+            ContentUnavailableView {
+                Label("One step left", systemImage: "key")
+            } description: {
+                Text("Add an AI key so your screenshots can be read. Anything you share before then waits here; it doesn't fail.")
+            } actions: {
+                Button("Add AI key", action: openKeySetup).buttonStyle(.borderedProminent)
+                Button("Restore from backup") { showBackup = true }
+            }
+        } else {
+            filledKeyEmptyState
+        }
+    }
+
+    private var filledKeyEmptyState: some View {
         ContentUnavailableView {
             Label("No bookmarks yet", systemImage: "photo.stack")
         } description: {
