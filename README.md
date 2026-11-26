@@ -180,7 +180,7 @@ Anyone can put text into an image, and the AI reads all of it. The worst a scree
    `Local.xcconfig` isn't committed. The share extension, tests, App Group, background task and Keychain service are all derived from `APP_ID`, so nothing else needs changing. Without the file, the project still builds for the simulator, just unsigned.
 2. Open `DragonLair.xcodeproj`.
 3. Run on a device or simulator.
-4. In the app, open **Settings** and add an API key for one AI provider. Optionally add TMDB, Hardcover or Google Books keys to find more covers.
+4. On first launch the app walks you through adding an API key for one AI provider (later, it's in **Settings**). Optionally add TMDB, Hardcover or Google Books keys in Settings to find more covers.
 
 The Xcode project is generated from [`project.yml`](project.yml) with [XcodeGen](https://github.com/yonaskolb/XcodeGen). After changing targets or settings there, regenerate it:
 
@@ -192,6 +192,7 @@ Debug builds accept two launch arguments:
 
 - `-seedSamples` fills an empty library with a few made-up bookmarks with drawn covers. The README screenshots use it.
 - `-stubAI` answers imports with made-up bookmarks after a few seconds, so you can try importing without an API key or network.
+- `-showOnboarding` opens the first-run screens on every launch. With `-stubAI`, any key in the right format passes the key check.
 
 The app logs to the system log under the subsystem `com.lirriel.dragonlair`, with the categories `import`, `covers`, `photos`, `keychain` and `ui`. View them in Xcode's console or Console.app. Release builds hide titles and site addresses in these logs.
 

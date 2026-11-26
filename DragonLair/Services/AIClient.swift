@@ -84,6 +84,44 @@ enum AIProviderKind: String, CaseIterable, Identifiable {
     }
 }
 
+extension AIProviderKind {
+    /// How every key from this provider starts; checked as soon as one is pasted.
+    var keyPrefix: String {
+        switch self {
+        case .claude: "sk-ant-"
+        case .openai: "sk-"
+        case .gemini: "AIza"
+        }
+    }
+
+    /// The model onboarding picks: reads screenshots well for less than the strongest one.
+    var setupModel: String {
+        switch self {
+        case .claude: "claude-sonnet-5-5"
+        case .openai: "gpt-5-mini"
+        case .gemini: defaultModel
+        }
+    }
+
+    /// Catches a wrong paste (a password, half a key, another provider's key) before any
+    /// network call.
+    func keyLooksValid(_ key: String) -> Bool {
+        let key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard key.count >= 20, key.hasPrefix(keyPrefix), !key.contains(where: \.isWhitespace) else { return false }
+        // Claude keys also start with "sk-".
+        return self != .openai || !key.hasPrefix(AIProviderKind.claude.keyPrefix)
+    }
+}
+
+/// What a quick test of a key found.
+enum KeyCheck: Equatable {
+    case works
+    /// The provider turned the key down: a typo, a revoked key, or no billing set up.
+    case rejected
+    /// Couldn't tell, e.g. offline or the provider is down.
+    case unknown(String)
+}
+
 enum AIError: LocalizedError {
     case missingKey
     case http(Int, String)
@@ -291,6 +329,44 @@ struct AIClient: Sendable {
         let chunks = (candidate?["groundingMetadata"] as? [String: Any])?["groundingChunks"] as? [[String: Any]] ?? []
         let grounded = chunks.compactMap { ($0["web"] as? [String: Any])?["uri"] as? String }.compactMap(URL.init(string:))
         return Array((named + grounded).prefix(6))
+    }
+
+    /// Tests the key by listing the provider's models: free, and fails the same way a real
+    /// request would for a bad key.
+    func checkKey() async -> KeyCheck {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-stubAI") { return .works }
+        #endif
+        var request: URLRequest
+        switch provider {
+        case .claude:
+            request = URLRequest(url: URL(string: "https://api.anthropic.com/v1/models?limit=1")!)
+            request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+            request.setValue("2026-10-21", forHTTPHeaderField: "anthropic-version")
+        case .openai:
+            request = URLRequest(url: URL(string: "https://api.openai.com/v1/models")!)
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "authorization")
+        case .gemini:
+            request = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1")!)
+            request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        }
+        request.timeoutInterval = 20
+        do {
+            let (_, response) = try await session.data(for: request)
+            return Self.keyCheck(status: (response as? HTTPURLResponse)?.statusCode ?? 0, provider: provider)
+        } catch {
+            return .unknown(error.localizedDescription)
+        }
+    }
+
+    static func keyCheck(status: Int, provider: AIProviderKind) -> KeyCheck {
+        switch status {
+        case 200: .works
+        case 401, 403: .rejected
+        // Gemini answers 400 "API key not valid".
+        case 400 where provider == .gemini: .rejected
+        default: .unknown("\(provider.title) answered with error \(status).")
+        }
     }
 
     private func call(_ ask: Ask) async throws -> String {

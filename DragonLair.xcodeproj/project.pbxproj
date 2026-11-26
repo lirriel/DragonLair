@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		116A1339F147F15821A990FC /* ScreenshotLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640A37984C07F94214DEED0 /* ScreenshotLibrary.swift */; };
 		18B7CFA251F6CF2EDA3EEAB2 /* ImportQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5B17844A3CD74A2728C6BB /* ImportQueue.swift */; };
+		25BC3E78B9EE92ED2E7CD4D6 /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7960CF9264A828255FD1FF9D /* OnboardingTests.swift */; };
 		29C94071686C1DDA592D9044 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8F6E454E86B4BD4F739D9E4 /* PrivacyInfo.xcprivacy */; };
 		2D6E7E1BEB0C1EA0F6D47399 /* ImportListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */; };
 		2ED526BB648411A79C769BB3 /* ScreenshotFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FA47656439F1D1CDFFD100 /* ScreenshotFolderView.swift */; };
@@ -37,6 +38,7 @@
 		CC396D6A5E450462264AD065 /* CoverFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1451D98EDB328DA157753A /* CoverFinder.swift */; };
 		D73DF1A39929572A70D31EEE /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */; };
 		DE917D496E6DA247EF4FB227 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F0BA6A348140131228F5A /* Settings.swift */; };
+		DF8ACE3F95CA9DEF49989139 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F423AFC135D0A4B55379085B /* OnboardingView.swift */; };
 		E5723C6D3E486E23FE2840A0 /* DragonLairTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77976D7C3143883DF2CFF3F /* DragonLairTests.swift */; };
 		EDA035B1C87A58DF1D10E8F3 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55D50B2BF20110074654C213 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F2896E9AD39286B7ECDF7FCD /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1F394BFE42E9425E9DCC8D /* SampleData.swift */; };
@@ -98,6 +100,7 @@
 		6BC53474EF9004E24B17D0B9 /* Backup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backup.swift; sourceTree = "<group>"; };
 		7316FE592833D1ACD4A44DA0 /* CoverArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArt.swift; sourceTree = "<group>"; };
 		78181FA4A4A2F590EBD838A5 /* DragonLairTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DragonLairTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7960CF9264A828255FD1FF9D /* OnboardingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTests.swift; sourceTree = "<group>"; };
 		7A0F0BA6A348140131228F5A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		998A00423C76DC24F773C30A /* AppID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppID.swift; sourceTree = "<group>"; };
 		A72450C043C19D158057CA5F /* LibrarySchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySchema.swift; sourceTree = "<group>"; };
@@ -116,6 +119,7 @@
 		EE04B4135B2B8C8B42B9BA2B /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		EE2D0FAB6F92C3DC9F952718 /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
 		F12A9A172F48804E9CE79E8C /* LibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTests.swift; sourceTree = "<group>"; };
+		F423AFC135D0A4B55379085B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		F66E1B720FB9E357E8B08222 /* CoverSourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverSourcesView.swift; sourceTree = "<group>"; };
 		FC6293FB697399C47D289DC8 /* OriginalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OriginalsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -137,6 +141,7 @@
 				1E60C9C2113579700A5EBADA /* BehaviourTests.swift */,
 				E77976D7C3143883DF2CFF3F /* DragonLairTests.swift */,
 				F12A9A172F48804E9CE79E8C /* LibraryTests.swift */,
+				7960CF9264A828255FD1FF9D /* OnboardingTests.swift */,
 			);
 			path = DragonLairTests;
 			sourceTree = "<group>";
@@ -188,6 +193,7 @@
 				F66E1B720FB9E357E8B08222 /* CoverSourcesView.swift */,
 				ED0B2B2E2F7BA6B55A9D0D53 /* ImportListView.swift */,
 				360D02F01F8AC8D28F1C7BE8 /* LibraryView.swift */,
+				F423AFC135D0A4B55379085B /* OnboardingView.swift */,
 				FC6293FB697399C47D289DC8 /* OriginalsView.swift */,
 				07EC5239687BE33D0FD1888D /* QuickActions.swift */,
 				1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */,
@@ -381,6 +387,7 @@
 				3206C7950DD22B2E10DEB3AA /* BehaviourTests.swift in Sources */,
 				E5723C6D3E486E23FE2840A0 /* DragonLairTests.swift in Sources */,
 				A7B609A2DD5DE10C52D9F6B8 /* LibraryTests.swift in Sources */,
+				25BC3E78B9EE92ED2E7CD4D6 /* OnboardingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -405,6 +412,7 @@
 				18B7CFA251F6CF2EDA3EEAB2 /* ImportQueue.swift in Sources */,
 				47B1263DAC4F1045AA2FCDEB /* LibrarySchema.swift in Sources */,
 				D73DF1A39929572A70D31EEE /* LibraryView.swift in Sources */,
+				DF8ACE3F95CA9DEF49989139 /* OnboardingView.swift in Sources */,
 				86A8899EB184F19AC8E5E9B3 /* OriginalsView.swift in Sources */,
 				FE0901492F4C9FDA1ADA5724 /* QuickActions.swift in Sources */,
 				6BBD7E9381E13504BD03A2A5 /* ReviewScreenshotsView.swift in Sources */,
@@ -437,6 +445,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DragonLair/DragonLair.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -495,6 +504,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DragonLair/DragonLair.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;

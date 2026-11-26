@@ -143,6 +143,20 @@ enum AppSettings {
         set { UserDefaults.standard.set(newValue, forKey: "lastBackupError") }
     }
 
+    /// Whether imports can run: the selected provider has a key (or `-stubAI` stands in for one).
+    static var hasAPIKey: Bool {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-stubAI") { return true }
+        #endif
+        return !apiKey(for: provider).isEmpty
+    }
+
+    /// Set once the first-run screens are finished or skipped, so they don't come back.
+    static var onboardingDone: Bool {
+        get { UserDefaults.standard.bool(forKey: "onboardingDone") }
+        set { UserDefaults.standard.set(newValue, forKey: "onboardingDone") }
+    }
+
     static var client: AIClient {
         let p = provider
         return AIClient(provider: p, apiKey: apiKey(for: p), model: model(for: p))
