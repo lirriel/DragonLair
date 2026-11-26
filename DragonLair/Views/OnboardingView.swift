@@ -316,6 +316,7 @@ private struct ReadyStep: View {
 
     @State private var access = ScreenshotLibrary.status
     @State private var watching = AppSettings.watchScreenshots && ScreenshotLibrary.canRead
+    @State private var recent: [String] = []
 
     var body: some View {
         ScrollView {
@@ -406,11 +407,13 @@ private struct ReadyStep: View {
             .padding(.horizontal, 20).padding(.vertical, 8)
             .background(Color("Parchment"))
         }
+        .onAppear { if watching { loadRecent() } }
     }
 
-    /// Kept small: a first import shouldn't run into a free tier's rate limit.
-    private var recent: [String] {
-        Array(importQueue.unhandled(ScreenshotLibrary.assetIDs(from: .distantPast), context: context).suffix(5))
+    /// Looked up once, not on every redraw: it reads the whole Screenshots album. Kept small so a
+    /// first import doesn't run into a free tier's rate limit.
+    private func loadRecent() {
+        recent = Array(importQueue.unhandled(ScreenshotLibrary.assetIDs(from: .distantPast), context: context).suffix(5))
     }
 
     private func turnOnWatching() async {
@@ -421,6 +424,7 @@ private struct ReadyStep: View {
         AppSettings.askBeforeImportingWatched = true
         watching = true
         importQueue.refreshWatching(context: context)
+        loadRecent()
     }
 
     private func openSettings() {
