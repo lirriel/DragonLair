@@ -19,6 +19,7 @@
 		39380895A9AE474767032DCF /* AppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998A00423C76DC24F773C30A /* AppID.swift */; };
 		47B1263DAC4F1045AA2FCDEB /* LibrarySchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72450C043C19D158057CA5F /* LibrarySchema.swift */; };
 		50E843F5C305CA17761475F0 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7411D6EC61F23CEB7688F9 /* Bookmark.swift */; };
+		5F3D7B5F145D0621D0EDA876 /* ImportNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CAA11C4E216CD32A01C6D57 /* ImportNotifier.swift */; };
 		6BBD7E9381E13504BD03A2A5 /* ReviewScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE2F6B6A8CF824ED9D4FC8F /* ReviewScreenshotsView.swift */; };
 		70B348A1114A7C67E739ACB0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EA674A2F6089DF32A534FC08 /* PrivacyInfo.xcprivacy */; };
 		7342766DEA86A53584AF04C5 /* DragonLairApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23282DB67326D0A42E435E7A /* DragonLairApp.swift */; };
@@ -102,6 +103,7 @@
 		78181FA4A4A2F590EBD838A5 /* DragonLairTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DragonLairTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7960CF9264A828255FD1FF9D /* OnboardingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTests.swift; sourceTree = "<group>"; };
 		7A0F0BA6A348140131228F5A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		8CAA11C4E216CD32A01C6D57 /* ImportNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportNotifier.swift; sourceTree = "<group>"; };
 		998A00423C76DC24F773C30A /* AppID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppID.swift; sourceTree = "<group>"; };
 		A72450C043C19D158057CA5F /* LibrarySchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySchema.swift; sourceTree = "<group>"; };
 		AB086FF25D55A792F7DFD2C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 				7316FE592833D1ACD4A44DA0 /* CoverArt.swift */,
 				3A1451D98EDB328DA157753A /* CoverFinder.swift */,
 				5D513834846B44037B292F2A /* ImportMerge.swift */,
+				8CAA11C4E216CD32A01C6D57 /* ImportNotifier.swift */,
 				DD5B17844A3CD74A2728C6BB /* ImportQueue.swift */,
 				C640A37984C07F94214DEED0 /* ScreenshotLibrary.swift */,
 				7A0F0BA6A348140131228F5A /* Settings.swift */,
@@ -409,6 +412,7 @@
 				7342766DEA86A53584AF04C5 /* DragonLairApp.swift in Sources */,
 				2D6E7E1BEB0C1EA0F6D47399 /* ImportListView.swift in Sources */,
 				331E86EFECE02B147F7C38F6 /* ImportMerge.swift in Sources */,
+				5F3D7B5F145D0621D0EDA876 /* ImportNotifier.swift in Sources */,
 				18B7CFA251F6CF2EDA3EEAB2 /* ImportQueue.swift in Sources */,
 				47B1263DAC4F1045AA2FCDEB /* LibrarySchema.swift in Sources */,
 				D73DF1A39929572A70D31EEE /* LibraryView.swift in Sources */,

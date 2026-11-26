@@ -77,9 +77,13 @@ final class ImportQueue {
     /// is sent to the AI until they do.
     var pendingReview: [String] = []
     var deleteError: String?
-    /// A delete asked for while the app was in the background, where iOS can't show its
-    /// confirmation; it runs the next time the app is opened.
-    private var deletionPending = false
+    /// Screenshots to delete, asked for while the app was in the background, where iOS can't
+    /// show its confirmation. A notification asks the user; the delete runs the next time the
+    /// app is on screen unless they tap "Keep".
+    private(set) var pendingDeletion: [String]?
+    private var isDeleting = false
+    /// Set by tests in place of checking whether the app is on screen.
+    var isAppActive: @MainActor () -> Bool = { UIApplication.shared.applicationState == .active }
     private var isRunning = false
     private let watcher = ScreenshotWatcher()
     private let background = BackgroundImport()
@@ -96,15 +100,51 @@ final class ImportQueue {
     var deletableCount: Int { jobs.filter(\.originalCanBeDeleted).count }
 
     /// Moves imported originals to Recently Deleted in Photos. iOS asks the user to confirm.
+    /// In the background it posts a notification asking first.
     func deleteOriginals() async {
         let ids = jobs.filter(\.originalCanBeDeleted).compactMap(\.assetID)
         guard !ids.isEmpty else { return }
-        guard UIApplication.shared.applicationState == .active else {
-            uiLog.info("Deleting \(ids.count) originals once the app is back on screen")
-            deletionPending = true
+        guard isAppActive() else {
+            uiLog.info("Asking to delete \(ids.count) originals with a notification")
+            pendingDeletion = ids
+            if testProcess == nil { ImportNotifier.postDeletePrompt(assetIDs: ids) }
             return
         }
-        deletionPending = false
+        await delete(ids)
+    }
+
+    /// "Delete" in the notification. The IDs come from the notification, so it works even if
+    /// iOS closed the app since; without them it falls back to this run's screenshots.
+    func requestDeletion(of ids: [String]) {
+        let ids = ids.isEmpty ? jobs.filter(\.originalCanBeDeleted).compactMap(\.assetID) : ids
+        guard !ids.isEmpty else { return }
+        pendingDeletion = ids
+        // Otherwise it runs when the app comes on screen (see LibraryView).
+        if isAppActive() { Task { await deleteOriginalsIfPending() } }
+    }
+
+    /// "Keep" in the notification: the originals stay in Photos.
+    func cancelPendingDeletion() {
+        pendingDeletion = nil
+    }
+
+    /// Runs a delete that was put off while the app was in the background.
+    func deleteOriginalsIfPending() async {
+        guard let ids = pendingDeletion, isAppActive() else { return }
+        await delete(ids)
+    }
+
+    private func delete(_ ids: [String]) async {
+        // The notification and coming back on screen can both start one; iOS would ask twice.
+        guard !isDeleting else { return }
+        isDeleting = true
+        defer { isDeleting = false }
+        pendingDeletion = nil
+        guard testProcess == nil else {
+            for i in jobs.indices where jobs[i].assetID.map(ids.contains) == true { jobs[i].originalDeleted = true }
+            return
+        }
+        ImportNotifier.removeDeletePrompt()
         do {
             let result = try await ScreenshotLibrary.delete(ids)
             // Only what was really deleted; declining the system confirmation isn't an error.
@@ -115,12 +155,6 @@ final class ImportQueue {
         } catch {
             deleteError = "Couldn't delete the original screenshots: \(error.localizedDescription)"
         }
-    }
-
-    /// Runs a delete that was put off while the app was in the background.
-    func deleteOriginalsIfPending() async {
-        guard deletionPending else { return }
-        await deleteOriginals()
     }
 
     func enqueue(_ items: [PhotosPickerItem], context: ModelContext) {

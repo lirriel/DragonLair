@@ -36,9 +36,13 @@ struct ScreenshotFolderView: View {
                     periodSection
                     Section {
                         Toggle("Delete originals after import", isOn: $deleteOriginals)
-                            .onChange(of: deleteOriginals) { _, on in AppSettings.deleteOriginalsAfterImport = on }
+                            .onChange(of: deleteOriginals) { _, on in
+                                AppSettings.deleteOriginalsAfterImport = on
+                                // Imports that finish in the background ask with a notification.
+                                if on { Task { await ImportNotifier.requestAuthorization() } }
+                            }
                     } footer: {
-                        Text("After each import, screenshots that added a bookmark (or matched one you already have) are moved to Recently Deleted in Photos, where they stay for 30 days. iOS asks you to confirm each time. Each bookmark keeps its own copy of the screenshot. Screenshots where nothing was found are kept.")
+                        Text("After each import, screenshots that added a bookmark (or matched one you already have) are moved to Recently Deleted in Photos, where they stay for 30 days. iOS asks you to confirm each time; if the import finishes while you're in another app, a notification asks first. Each bookmark keeps its own copy of the screenshot. Screenshots where nothing was found are kept.")
                     }
                     cleanupSection
                     if status == .limited {

@@ -481,3 +481,65 @@ struct QueueTests {
         #expect(try library.context.fetchCount(FetchDescriptor<ScannedImage>()) == 1)
     }
 }
+
+// MARK: Asking to delete originals
+
+@Suite("Asking to delete originals after a background import")
+@MainActor
+struct DeletePromptTests {
+    private func queue(active: Bool) -> ImportQueue {
+        let queue = ImportQueue(testProcess: { _, _ in .skipped })
+        queue.isAppActive = { active }
+        queue.jobs = [
+            ImportQueue.Job(source: .asset("added"), state: .done(added: 1, notes: [])),
+            ImportQueue.Job(source: .asset("matched"), state: .done(added: 0, notes: ["already there"])),
+            ImportQueue.Job(source: .asset("empty"), state: .nothingFound),
+            ImportQueue.Job(source: .asset("broken"), state: .failed("oops")),
+        ]
+        return queue
+    }
+
+    @Test("In the background it waits for an answer, with only screenshots now in the collection")
+    func asksInBackground() async {
+        let queue = queue(active: false)
+        await queue.deleteOriginals()
+        #expect(queue.pendingDeletion == ["added", "matched"])
+        #expect(queue.jobs.allSatisfy { !$0.originalDeleted })
+    }
+
+    @Test("\"Keep\" leaves the originals, and opening the app doesn't delete them")
+    func keep() async {
+        let queue = queue(active: false)
+        await queue.deleteOriginals()
+        queue.cancelPendingDeletion()
+        queue.isAppActive = { true }
+        await queue.deleteOriginalsIfPending()
+        #expect(queue.pendingDeletion == nil)
+        #expect(queue.jobs.allSatisfy { !$0.originalDeleted })
+    }
+
+    @Test("\"Delete\" runs once the app is on screen")
+    func delete() async {
+        let queue = queue(active: false)
+        await queue.deleteOriginals()
+        queue.requestDeletion(of: ["added", "matched"])
+        queue.isAppActive = { true }
+        await queue.deleteOriginalsIfPending()
+        #expect(queue.pendingDeletion == nil)
+        #expect(queue.jobs.filter(\.originalDeleted).compactMap(\.assetID) == ["added", "matched"])
+    }
+
+    @Test("\"Delete\" works from the notification's list after the app was closed")
+    func deleteAfterRelaunch() async {
+        let queue = ImportQueue(testProcess: { _, _ in .skipped })
+        queue.isAppActive = { false }
+        queue.requestDeletion(of: ["a", "b"])
+        #expect(queue.pendingDeletion == ["a", "b"])
+    }
+
+    @Test("The notification counts the screenshots")
+    func body() {
+        #expect(ImportNotifier.body(count: 1).hasPrefix("1 screenshot is"))
+        #expect(ImportNotifier.body(count: 3).hasPrefix("3 screenshots are"))
+    }
+}

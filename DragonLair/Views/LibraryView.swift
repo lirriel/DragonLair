@@ -156,6 +156,8 @@ struct LibraryView: View {
                     importQueue.refreshWatching(context: context)
                     importQueue.resume(context: context)
                     Task { await importQueue.deleteOriginalsIfPending() }
+                    // For anyone who turned on deleting originals before it asked by notification.
+                    if AppSettings.deleteOriginalsAfterImport { Task { await ImportNotifier.requestAuthorization() } }
                     Task { await importQueue.covers.find(context: context) }
                 case .background:
                     // Catches edits and tracker changes made since the last import.
