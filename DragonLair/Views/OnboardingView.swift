@@ -317,6 +317,7 @@ private struct ReadyStep: View {
     @State private var access = ScreenshotLibrary.status
     @State private var watching = AppSettings.watchScreenshots && ScreenshotLibrary.canRead
     @State private var recent: [String] = []
+    @State private var deleting = AppSettings.deleteOriginalsAfterImport && ScreenshotLibrary.canRead
 
     var body: some View {
         ScrollView {
@@ -327,7 +328,7 @@ private struct ReadyStep: View {
                         .accessibilityHidden(true)
                     Text("Your lair is ready. Bring it treasure.").font(.title.bold()).fontDesign(.serif)
                 }
-                Text("Three ways to add screenshots. Use any of them, any time.").foregroundStyle(.secondary)
+                Text("Ways to add screenshots, and to tidy up after. Use any of them, any time.").foregroundStyle(.secondary)
 
                 VStack(spacing: 0) {
                     HStack(spacing: 12) {
@@ -354,6 +355,26 @@ private struct ReadyStep: View {
                             .font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 44).padding(.bottom, 10)
                     }
+                    Divider().padding(.leading, 44)
+                    HStack(spacing: 12) {
+                        WayIcon("trash")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Tidy up after import").font(.headline)
+                            Text(deleting ? "On. Bookmarked screenshots go to Recently Deleted; you confirm each time."
+                                          : "Delete originals once they're bookmarked. You confirm each time, with a notification if you're in another app.")
+                                .font(.subheadline).foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: 0)
+                        if deleting {
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).accessibilityLabel("On")
+                        } else if access == .denied || access == .restricted {
+                            Button("Settings") { openSettings() }.buttonStyle(.bordered).buttonBorderShape(.capsule)
+                        } else {
+                            Button("Turn on") { Task { await turnOnDeleting() } }
+                                .buttonStyle(.bordered).buttonBorderShape(.capsule)
+                        }
+                    }
+                    .padding(.vertical, 12)
                     Divider().padding(.leading, 44)
                     HStack(alignment: .top, spacing: 12) {
                         WayIcon("square.and.arrow.up")
@@ -425,6 +446,15 @@ private struct ReadyStep: View {
         watching = true
         importQueue.refreshWatching(context: context)
         loadRecent()
+    }
+
+    /// Needs photo access to delete, and notifications to ask when an import ends in the background.
+    private func turnOnDeleting() async {
+        access = await ScreenshotLibrary.requestAccess()
+        guard ScreenshotLibrary.canRead else { return }
+        AppSettings.deleteOriginalsAfterImport = true
+        deleting = true
+        await ImportNotifier.requestAuthorization()
     }
 
     private func openSettings() {
